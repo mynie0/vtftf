@@ -1,0 +1,13 @@
+{
+  "name": "starsix-bot",
+  "version": "1.0.0",
+  "description": "StarSix License System Discord Bot",
+  "main": "bot.js",
+  "scripts": {
+    "start": "node bot.js"
+  },
+  "dependencies": {
+    "discord.js": "^14.14.1",
+    "axios": "^1.6.2"
+  }
+}
