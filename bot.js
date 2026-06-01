@@ -9,7 +9,7 @@ const GUILD_ID = '1427684520530022517';
 
 // KONFIGURASI GIST (SAMA DENGAN WEB PANEL)
 const GIST_ID = "436734a001bef407c514615ebff6ede3";
-const GITHUB_TOKEN = "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";
+const GITHUB_TOKEN = "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";
 
 // Role yang bisa akses admin commands
 const ALLOWED_ROLES = ['Admin', 'Moderator', 'Owner', 'StarSix'];
