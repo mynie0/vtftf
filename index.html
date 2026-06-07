@@ -349,7 +349,7 @@
 
 <main class="px-4 pt-4" id="mainContent">
 
-    <!-- DASHBOARD VIEW - SAMA SEPERTI FIQQZR7 -->
+    <!-- DASHBOARD VIEW -->
     <div id="dashboardView" class="view">
         <div class="section-label">Overview</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
@@ -429,12 +429,10 @@
                 <i class="fas fa-plus" style="margin-right:5px;font-size:10px;"></i>Generate Key
             </button>
         </div>
-        <div id="keysList" style="max-height:calc(100vh - 200px);overflow-y:auto;">
-            <div style="text-align:center;color:var(--muted);padding:40px;font-family:'Space Mono',monospace;">Loading...</div>
-        </div>
+        <div id="keysList" style="max-height:calc(100vh - 200px);overflow-y:auto;"></div>
     </div>
 
-    <!-- SCRIPTS VIEW - MACAM PASTEBIN -->
+    <!-- SCRIPTS VIEW -->
     <div id="scriptsView" class="view hidden">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
             <div>
@@ -494,7 +492,7 @@
     </div>
 </nav>
 
-<!-- MODAL ADD KEY -->
+<!-- MODALS -->
 <div id="modalAddKey" class="modal-bg hidden">
     <div class="modal-box">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">+ GENERATE KEY</div>
@@ -517,13 +515,12 @@
             </div>
             <div style="display:flex;gap:8px;margin-top:4px;">
                 <button onclick="closeModal('modalAddKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
-                <button onclick="submitAddKey()" class="btn-primary" style="flex:1;padding:10px;" id="btnAddKey">Generate</button>
+                <button onclick="submitAddKey()" class="btn-primary" style="flex:1;padding:10px;">Generate</button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- MODAL EDIT KEY -->
 <div id="modalEditKey" class="modal-bg hidden">
     <div class="modal-box">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">EDIT KEY</div>
@@ -545,7 +542,7 @@
                 <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">TARIKH EXPIRED</label>
                 <input type="date" id="editKeyExpire" class="inp">
             </div>
-            <div style="display:flex;gap:8px;margin-top:4px;">
+            <div style="display:flex;gap:8px;">
                 <button onclick="closeModal('modalEditKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
                 <button onclick="submitEditKey()" class="btn-primary" style="flex:1;padding:10px;">Kemaskini</button>
             </div>
@@ -553,7 +550,6 @@
     </div>
 </div>
 
-<!-- MODAL DELETE CONFIRM -->
 <div id="modalDeleteConfirm" class="modal-bg hidden">
     <div class="modal-box">
         <div style="font-size:16px;font-weight:700;margin-bottom:14px;text-align:center;">⚠️ DELETE</div>
@@ -568,7 +564,6 @@
     </div>
 </div>
 
-<!-- MODAL ADD SCRIPT - MACAM PASTEBIN -->
 <div id="modalAddScript" class="modal-bg hidden">
     <div class="modal-box">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">+ NEW SCRIPT</div>
@@ -585,7 +580,7 @@
                 <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">ATAU UPLOAD FILE</label>
                 <input type="file" id="uploadScriptFile" accept=".lua,.txt" class="inp" onchange="uploadScriptFile(this)">
             </div>
-            <div style="display:flex;gap:8px;margin-top:4px;">
+            <div style="display:flex;gap:8px;">
                 <button onclick="closeModal('modalAddScript')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
                 <button onclick="submitAddScript()" class="btn-primary" style="flex:1;padding:10px;">Simpan</button>
             </div>
@@ -593,7 +588,27 @@
     </div>
 </div>
 
-<!-- MODAL VIEW SCRIPT - Protection Show -->
+<div id="modalEditScript" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">EDIT SCRIPT</div>
+        <input type="hidden" id="editScriptId">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">NAMA SCRIPT</label>
+                <input type="text" id="editScriptName" class="inp">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">SCRIPT CODE</label>
+                <textarea id="editScriptContent" class="inp" rows="6"></textarea>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="closeModal('modalEditScript')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
+                <button onclick="submitEditScript()" class="btn-primary" style="flex:1;padding:10px;">Kemaskini</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div id="modalViewScript" class="modal-bg hidden">
     <div class="modal-box">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;" id="viewScriptTitle">Script</div>
@@ -616,8 +631,8 @@
 
 <script>
 // ============================================================
-// STAR SIX COMMUNITY - FIQQZR7 STYLE DASHBOARD
-// Key Management + Script Manager (Pastebin style with protection)
+// STAR SIX COMMUNITY - FULL DASHBOARD
+// Dengan protection dan raw script endpoint
 // ============================================================
 
 // Configuration
@@ -633,11 +648,51 @@ let chart;
 let pendingDeleteCallback = null;
 
 // ============================================================
+// CHECK IF PAGE IS ACCESSED AS RAW SCRIPT
+// ============================================================
+(function() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const rawId = urlParams.get('raw');
+    
+    if (rawId) {
+        // Ini adalah akses ke raw script
+        const script = scriptsData.find(s => s.id === rawId);
+        if (script) {
+            // Check if from Roblox executor (biasa nya user-agent)
+            const ua = navigator.userAgent;
+            const isRoblox = ua.includes('Roblox') || ua.includes('Lua') || window.location.href.includes('execute');
+            
+            if (!isRoblox && !rawId.includes('force')) {
+                // Show protection page
+                document.body.innerHTML = `
+                    <div style="background:#0a0a0f;display:flex;justify-content:center;align-items:center;height:100vh;font-family:monospace;">
+                        <div style="text-align:center;background:#111118;padding:40px;border-radius:16px;border:1px solid rgba(255,45,117,0.3);">
+                            <h1 style="font-size:48px;color:#ff2d75;">⛔ ACCESS DENIED</h1>
+                            <p style="color:#6b6b8d;">Raw script cannot be accessed directly from browser.</p>
+                            <p style="color:#6b6b8d;">Use loadstring in Roblox executor only.</p>
+                            <p style="color:#8b5cf6;margin-top:20px;">loadstring(game:HttpGet('${window.location.href}'))()</p>
+                        </div>
+                    </div>
+                `;
+                document.body.style.margin = '0';
+                document.body.style.padding = '0';
+                return;
+            }
+            
+            // Return plain text script
+            document.body.innerHTML = `<pre style="display:none;">${escapeHtml(script.content)}</pre>`;
+            document.write(script.content);
+            document.close();
+            return;
+        }
+    }
+})();
+
+// ============================================================
 // GITHUB GIST FUNCTIONS
 // ============================================================
 async function loadFromGist() {
     if (!GIST_ID || !GITHUB_TOKEN) {
-        // Load from localStorage
         const saved = localStorage.getItem('starsix_keys_data');
         keysData = saved ? JSON.parse(saved) : {};
         
@@ -653,6 +708,12 @@ async function loadFromGist() {
             keysData = {
                 "STARSIX-TRIAL-001": { username: "", role: "TRIAL", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] }
             };
+        }
+        
+        if (scriptsData.length === 0) {
+            scriptsData = [
+                { id: "demo123", name: "Example Script", content: 'print("Hello from StarSix!")\nloadstring(game:HttpGet("https://example.com/api"))()', created: new Date().toISOString().split('T')[0] }
+            ];
         }
         
         if (activityData.length === 0) {
@@ -680,9 +741,7 @@ async function loadFromGist() {
                 return;
             }
         }
-    } catch(e) {
-        console.error('Gist load error:', e);
-    }
+    } catch(e) {}
     
     renderAll();
 }
@@ -739,7 +798,11 @@ function isExpired(expire) {
 }
 
 function getBaseUrl() {
-    return window.location.origin;
+    return window.location.origin + window.location.pathname;
+}
+
+function getScriptRawUrl(id) {
+    return `${window.location.origin}${window.location.pathname}?raw=${id}`;
 }
 
 function escapeHtml(str) {
@@ -769,7 +832,7 @@ function copyToClipboard(text) {
 }
 
 // ============================================================
-// RENDER FUNCTIONS - SAMA SEPERTI FIQQZR7
+// RENDER FUNCTIONS
 // ============================================================
 function renderStats() {
     const total = Object.keys(keysData).length;
@@ -787,17 +850,17 @@ function renderActivityLog() {
     const el = document.getElementById('activityLog');
     document.getElementById('activityCount').textContent = activityData.length + ' entri';
     if (!activityData.length) {
-        el.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:11px;padding:20px;">Tiada aktiviti</div>`;
+        el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:20px;">Tiada aktiviti</div>`;
         return;
     }
     el.innerHTML = activityData.slice(0, 15).map(a => `
         <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
             <div style="width:5px;height:5px;background:var(--purple);border-radius:50%;flex-shrink:0;"></div>
-            <div style="flex:1;min-width:0;">
-                <span style="color:#e4e4f0;font-size:10px;font-weight:600;">${a.action}</span>
-                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;overflow:hidden;text-overflow:ellipsis;">${a.details || ''}</span>
+            <div style="flex:1;">
+                <span style="font-size:10px;font-weight:600;">${a.action}</span>
+                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${a.details || ''}</span>
             </div>
-            <span style="font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;flex-shrink:0;">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
+            <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
         </div>
     `).join('');
 }
@@ -820,28 +883,28 @@ function renderKeys() {
             <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
                 <div style="flex:1;min-width:0;margin-right:8px;">
                     <div class="mono" style="font-size:10px;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;">${code}</div>
-                    <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;">
+                    <div style="margin-top:4px;display:flex;gap:5px;">
                         <span class="badge ${badgeClass}">${data.role}</span>
                         <span class="badge ${status === 'active' ? 'badge-active' : 'badge-expired'}">${status === 'active' ? 'Aktif' : 'Expired'}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;">
                     <button onclick="openEditKeyModal('${code.replace(/'/g, "\\'")}')" style="background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:8px;padding:5px 8px;color:var(--purple);cursor:pointer;">
-                        <i class="fas fa-pen" style="font-size:10px;"></i>
+                        <i class="fas fa-pen"></i>
                     </button>
                     <button onclick="confirmDelete('key', '${code.replace(/'/g, "\\'")}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:5px 8px;color:var(--red);cursor:pointer;">
-                        <i class="fas fa-trash" style="font-size:10px;"></i>
+                        <i class="fas fa-trash"></i>
                     </button>
                 </div>
             </div>
             <div style="display:flex;gap:12px;">
                 <div>
-                    <div style="font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;">EXPIRED</div>
-                    <div style="font-size:9px;color:#e4e4f0;font-family:'Space Mono',monospace;">${data.expire === '-' ? 'Lifetime' : data.expire}</div>
+                    <div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div>
+                    <div class="mono" style="font-size:9px;">${data.expire === '-' ? 'Lifetime' : data.expire}</div>
                 </div>
                 <div style="flex:1;">
-                    <div style="font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;">PENGGUNA</div>
-                    <div style="font-size:9px;color:var(--purple);font-family:'Space Mono',monospace;overflow:hidden;text-overflow:ellipsis;">${data.username || 'Sesiapa'}</div>
+                    <div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div>
+                    <div class="mono" style="font-size:9px;color:var(--purple);">${data.username || 'Sesiapa'}</div>
                 </div>
             </div>
         </div>
@@ -859,7 +922,7 @@ function renderScripts() {
     }
     
     el.innerHTML = scriptsData.map(s => {
-        const scriptUrl = `${getBaseUrl()}/raw/${s.id}`;
+        const scriptUrl = getScriptRawUrl(s.id);
         const loadstringCmd = `loadstring(game:HttpGet('${scriptUrl}'))()`;
         
         return `
@@ -901,7 +964,7 @@ function renderAll() {
 }
 
 // ============================================================
-// CHART - SAMA SEPERTI FIQQZR7
+// CHART
 // ============================================================
 function initChart() {
     const ctx = document.getElementById('keyChart')?.getContext('2d');
@@ -1034,7 +1097,7 @@ async function submitEditKey() {
 }
 
 // ============================================================
-// SCRIPT CRUD - MACAM PASTEBIN
+// SCRIPT CRUD
 // ============================================================
 function uploadScriptFile(input) {
     const file = input.files[0];
@@ -1105,7 +1168,7 @@ function viewScript(id) {
     const script = scriptsData.find(s => s.id === id);
     if (!script) return;
     
-    const scriptUrl = `${getBaseUrl()}/raw/${script.id}`;
+    const scriptUrl = getScriptRawUrl(id);
     const loadstringCmd = `loadstring(game:HttpGet('${scriptUrl}'))()`;
     
     document.getElementById('viewScriptTitle').innerHTML = `<i class="fas fa-code"></i> ${escapeHtml(script.name)}`;
@@ -1116,7 +1179,7 @@ function viewScript(id) {
 }
 
 // ============================================================
-// MODAL DELETE CONFIRMATION
+// DELETE CONFIRMATION
 // ============================================================
 function confirmDelete(type, id) {
     const msg = document.getElementById('deleteMessage');
@@ -1233,12 +1296,6 @@ function showView(name) {
 }
 
 // ============================================================
-// BACKEND PROTECTION - API ROUTE
-// ============================================================
-// Untuk protection, deploy Vercel function di /api/raw/[id].js
-// Yang akan check User-Agent dan return access denied jika dari browser
-
-// ============================================================
 // INIT
 // ============================================================
 initChart();
@@ -1246,28 +1303,6 @@ loadFromGist();
 showView('dashboard');
 setInterval(() => { loadFromGist(); }, 30000);
 </script>
-
-<!-- MODAL EDIT SCRIPT -->
-<div id="modalEditScript" class="modal-bg hidden">
-    <div class="modal-box">
-        <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">EDIT SCRIPT</div>
-        <input type="hidden" id="editScriptId">
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            <div>
-                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">NAMA SCRIPT</label>
-                <input type="text" id="editScriptName" class="inp">
-            </div>
-            <div>
-                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">SCRIPT CODE</label>
-                <textarea id="editScriptContent" class="inp" rows="6"></textarea>
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button onclick="closeModal('modalEditScript')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
-                <button onclick="submitEditScript()" class="btn-primary" style="flex:1;padding:10px;">Kemaskini</button>
-            </div>
-        </div>
-    </div>
-</div>
 
 </body>
 </html>
