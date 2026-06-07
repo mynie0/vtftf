@@ -1,6 +1,19 @@
 {
   "version": 2,
-  "rewrites": [
-    { "source": "/raw/(.*)", "destination": "/api/raw/$1" }
+  "routes": [
+    {
+      "src": "/raw/(.*)",
+      "dest": "/api/raw/$1"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/api/raw/(.*)",
+      "headers": [
+        { "key": "Access-Control-Allow-Origin", "value": "*" },
+        { "key": "Access-Control-Allow-Methods", "value": "GET, OPTIONS" },
+        { "key": "Access-Control-Allow-Headers", "value": "*" }
+      ]
+    }
   ]
 }
