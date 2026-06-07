@@ -1,1262 +1,1325 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="ms">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Fiqqzr7Hub | Best Script Roblox</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>StarSix Community Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #050508;
+            --surface: #0d0d14;
+            --border: rgba(139,92,246,0.15);
+            --purple: #8b5cf6;
+            --purple-dim: rgba(139,92,246,0.08);
+            --green: #10b981;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --blue: #3b82f6;
+            --pink: #ff2d75;
+            --cyan: #00ffff;
+            --text: #e4e4f0;
+            --muted: #52526b;
+        }
+        * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+        body {
+            background: var(--bg);
+            font-family: 'Syne', sans-serif;
+            color: var(--text);
+            min-height: 100vh;
+            padding-bottom: 80px;
+            overflow-x: hidden;
+        }
 
-  <!-- Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139,92,246,0.015) 2px, rgba(139,92,246,0.015) 4px);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-  <style>
-    /* ─── Reset & Base ─────────────────────────────────────────── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+        body::after {
+            content: '';
+            position: fixed;
+            top: -200px;
+            right: -200px;
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(139,92,246,0.06) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
 
-    :root {
-      --red:        #c0100a;
-      --red-bright: #e01208;
-      --red-dim:    #7c0a07;
-      --red-glow:   rgba(192, 16, 10, 0.35);
-      --red-subtle: rgba(192, 16, 10, 0.08);
-      --bg:         #080808;
-      --bg2:        #0e0e0e;
-      --bg3:        #141414;
-      --border:     rgba(255,255,255,0.06);
-      --border-r:   rgba(192, 16, 10, 0.3);
-      --txt:        #ffffff;
-      --txt2:       #a0a0a0;
-      --txt3:       #606060;
-      --font-head: 'Inter', sans-serif;
-      --font-body: 'Inter', sans-serif;
-      --ease:       cubic-bezier(0.4, 0, 0.2, 1);
-      --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+        .header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            background: rgba(5,5,8,0.92);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
 
-    html { scroll-behavior: smooth; font-size: 16px; }
+        .logo-text {
+            font-family: 'Space Mono', monospace;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            color: #fff;
+        }
+        .logo-text span { color: var(--purple); }
 
-    body {
-      font-family: var(--font-body);
-      background: var(--bg);
-      color: var(--txt);
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(5,5,8,0.97);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 8px;
+            padding-bottom: calc(10px + env(safe-area-inset-bottom));
+            z-index: 50;
+        }
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+            color: var(--muted);
+            transition: all 0.2s;
+            font-family: 'Space Mono', monospace;
+        }
+        .nav-item i { font-size: 17px; }
+        .nav-item span { font-size: 8px; letter-spacing: 0.05em; }
+        .nav-item.active {
+            background: var(--purple-dim);
+            color: var(--purple);
+            border: 1px solid var(--border);
+        }
 
-    /* ─── Scrollbar ─────────────────────────────────────────────── */
-    ::-webkit-scrollbar { width: 4px; }
-    ::-webkit-scrollbar-track { background: var(--bg); }
-    ::-webkit-scrollbar-thumb { background: var(--red-dim); border-radius: 2px; }
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            position: relative;
+            overflow: hidden;
+        }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(139,92,246,0.4), transparent);
+        }
 
-    /* ─── Selection ─────────────────────────────────────────────── */
-    ::selection { background: var(--red); color: white; }
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: -20px; right: -20px;
+            width: 70px; height: 70px;
+            border-radius: 50%;
+            opacity: 0.06;
+        }
+        .stat-card.purple::after { background: var(--purple); }
+        .stat-card.green::after { background: var(--green); }
+        .stat-card.blue::after { background: var(--blue); }
+        .stat-card.amber::after { background: var(--amber); }
 
-    /* ─── Noise + Glow Canvas Background ───────────────────────── */
-    .site-bg {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background: var(--bg);
-      overflow: hidden;
-    }
-    .site-bg::before {
-      content: '';
-      position: absolute;
-      top: -30%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 900px;
-      height: 600px;
-      background: radial-gradient(ellipse at center, rgba(192,16,10,0.12) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    .site-bg::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-      opacity: 0.4;
-      pointer-events: none;
-    }
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-family: 'Space Mono', monospace;
+            font-weight: 700;
+        }
+        .badge-active { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+        .badge-expired { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+        .badge-pending { background: rgba(245,158,11,0.1); color: var(--amber); border: 1px solid rgba(245,158,11,0.2); }
+        .badge-trial { background: rgba(0,255,255,0.1); color: var(--cyan); border: 1px solid rgba(0,255,255,0.2); }
+        .badge-vip { background: rgba(255,45,117,0.1); color: var(--pink); border: 1px solid rgba(255,45,117,0.2); }
+        .badge-lifetime { background: rgba(139,92,246,0.1); color: var(--purple); border: 1px solid var(--border); }
+        .badge-admin { background: rgba(139,92,246,0.1); color: var(--purple); border: 1px solid var(--border); }
 
-    /* ─── Grid Lines ───────────────────────── */
-    .grid-lines {
-      position: fixed;
-      inset: 0;
-      z-index: -1;
-      background-image:
-        linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
-      background-size: 80px 80px;
-      mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 0%, transparent 80%);
-    }
+        .mono { font-family: 'Space Mono', monospace; }
 
-    /* ─── Typography ────────────────────────────────────────────── */
-    h1, h2, h3, h4 { font-family: var(--font-head); }
+        .btn-primary {
+            background: linear-gradient(135deg, #7c3aed, #8b5cf6);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-primary:active { transform: scale(0.97); opacity: 0.9; }
 
-    .text-red { color: var(--red-bright); }
-    .gradient-text {
-      background: linear-gradient(135deg, #ff3a32 0%, #c0100a 50%, #7c0a07 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
+        .btn-ghost {
+            background: rgba(255,255,255,0.05);
+            color: var(--muted);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 10px;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .btn-ghost:active { transform: scale(0.97); }
 
-    /* ─── Navbar ────────────────────────────────────────────────── */
-    .navbar {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 900;
-      padding: 0 32px;
-      height: 68px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(8,8,8,0.6);
-      backdrop-filter: blur(24px) saturate(160%);
-      border-bottom: 1px solid var(--border);
-      transition: all 0.4s var(--ease);
-    }
-    .navbar.scrolled {
-      background: rgba(8,8,8,0.9);
-      border-bottom-color: rgba(192,16,10,0.15);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 0 1px rgba(192,16,10,0.05);
-    }
+        .inp {
+            width: 100%;
+            background: rgba(255,255,255,0.04);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: var(--text);
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            outline: none;
+            transition: border 0.2s;
+        }
+        .inp:focus { border-color: rgba(139,92,246,0.5); }
+        .inp::placeholder { color: var(--muted); }
+        select.inp option { background: #0d0d14; color: var(--text); }
 
-    .nav-logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      text-decoration: none;
-    }
-    .nav-logo-icon {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--red-bright), var(--red-dim));
-      border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 14px;
-      color: white;
-      box-shadow: 0 4px 16px var(--red-glow);
-      transition: transform 0.3s var(--ease-bounce), box-shadow 0.3s;
-    }
-    .nav-logo:hover .nav-logo-icon {
-      transform: scale(1.1) rotate(-5deg);
-      box-shadow: 0 8px 24px var(--red-glow);
-    }
-    .nav-logo-text {
-      font-family: var(--font-head);
-      font-weight: 800;
-      font-size: 17px;
-      color: white;
-      letter-spacing: -0.02em;
-    }
+        .toast {
+            position: fixed;
+            bottom: 90px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0d0d14;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 200;
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            white-space: nowrap;
+            animation: toastIn 0.3s ease;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+        }
+        @keyframes toastIn {
+            from { opacity:0; transform: translateX(-50%) translateY(10px); }
+            to { opacity:1; transform: translateX(-50%) translateY(0); }
+        }
 
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      list-style: none;
-    }
-    .nav-link {
-      font-family: var(--font-body);
-      font-size: 13.5px;
-      font-weight: 500;
-      color: var(--txt2);
-      text-decoration: none;
-      padding: 7px 14px;
-      border-radius: 8px;
-      transition: all 0.25s var(--ease);
-      position: relative;
-    }
-    .nav-link:hover { color: white; background: rgba(255,255,255,0.05); }
-    .nav-link.active { color: white; }
-    .nav-link.active::after {
-      content: '';
-      position: absolute;
-      bottom: -1px; left: 50%; transform: translateX(-50%);
-      width: 20px; height: 2px;
-      background: var(--red-bright);
-      border-radius: 1px;
-    }
+        .modal-bg {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 100;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            padding: 0 0 env(safe-area-inset-bottom);
+        }
+        .modal-box {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px 20px 0 0;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px 16px 32px;
+            animation: slideUp 0.3s cubic-bezier(.16,1,.3,1);
+        }
+        .modal-box::before {
+            content: '';
+            display: block;
+            width: 36px;
+            height: 3px;
+            background: var(--border);
+            border-radius: 4px;
+            margin: 0 auto 18px;
+        }
+        @keyframes slideUp {
+            from { transform: translateY(100%); }
+            to { transform: translateY(0); }
+        }
 
-    .nav-cta {
-      display: flex; align-items: center; gap: 10px;
-    }
-    .nav-cta-discord {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; font-weight: 600;
-      color: var(--txt2);
-      text-decoration: none;
-      padding: 7px 14px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      transition: all 0.25s var(--ease);
-    }
-    .nav-cta-discord:hover { color: white; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.04); }
+        .view { animation: fadeIn 0.2s ease; }
+        @keyframes fadeIn {
+            from { opacity:0; transform: translateY(6px); }
+            to { opacity:1; transform: translateY(0); }
+        }
 
-    /* Hamburger */
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 8px;
-      border-radius: 8px;
-      border: 1px solid var(--border);
-      background: none;
-      transition: all 0.25s var(--ease);
-    }
-    .hamburger:hover { border-color: var(--border-r); background: var(--red-subtle); }
-    .hamburger span {
-      display: block;
-      width: 20px; height: 1.5px;
-      background: var(--txt2);
-      border-radius: 1px;
-      transition: all 0.3s var(--ease);
-    }
-    .hamburger.open span:nth-child(1) { transform: rotate(45deg) translate(4px, 4px); }
-    .hamburger.open span:nth-child(2) { opacity: 0; transform: scaleX(0); }
-    .hamburger.open span:nth-child(3) { transform: rotate(-45deg) translate(4px, -4px); }
+        ::-webkit-scrollbar { width: 2px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--purple); border-radius: 4px; }
 
-    /* Mobile Menu */
-    .mobile-overlay {
-      position: fixed; inset: 0; background: rgba(0,0,0,0.7);
-      z-index: 950; opacity: 0; pointer-events: none;
-      transition: opacity 0.3s var(--ease);
-      backdrop-filter: blur(4px);
-    }
-    .mobile-overlay.open { opacity: 1; pointer-events: all; }
+        .section-label {
+            font-size: 10px;
+            font-family: 'Space Mono', monospace;
+            color: var(--muted);
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            margin-bottom: 10px;
+        }
 
-    .mobile-drawer {
-      position: fixed;
-      top: 0; right: -320px;
-      width: 300px; height: 100vh;
-      background: rgba(10,10,10,0.98);
-      border-left: 1px solid var(--border);
-      backdrop-filter: blur(32px);
-      z-index: 960;
-      padding: 84px 24px 32px;
-      display: flex; flex-direction: column; gap: 6px;
-      transition: right 0.35s var(--ease);
-    }
-    .mobile-drawer.open { right: 0; }
-    .mobile-close {
-      position: absolute; top: 20px; right: 20px;
-      width: 36px; height: 36px;
-      background: var(--bg3); border: 1px solid var(--border); border-radius: 8px;
-      color: var(--txt2); cursor: pointer; display: flex; align-items: center; justify-content: center;
-      font-size: 14px; transition: all 0.25s var(--ease);
-    }
-    .mobile-close:hover { color: white; border-color: var(--border-r); }
-    .mobile-nav-link {
-      font-size: 15px; font-weight: 500; color: var(--txt2);
-      text-decoration: none; padding: 12px 16px; border-radius: 10px;
-      transition: all 0.25s var(--ease); display: flex; align-items: center; gap: 10px;
-    }
-    .mobile-nav-link i { width: 16px; color: var(--red); font-size: 13px; }
-    .mobile-nav-link:hover { color: white; background: rgba(255,255,255,0.04); }
-    .mobile-divider { height: 1px; background: var(--border); margin: 8px 0; }
+        .key-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 8px;
+            position: relative;
+        }
+        .key-item::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 16px; bottom: 16px;
+            width: 2px;
+            border-radius: 2px;
+        }
+        .key-item.active::before { background: var(--green); }
+        .key-item.expired::before { background: var(--red); }
+        .key-item.pending::before { background: var(--amber); }
 
-    /* ─── Buttons ────────────────────────────────────────────────── */
-    .btn {
-      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-      font-family: var(--font-body);
-      font-weight: 600; font-size: 14px;
-      border-radius: 10px; padding: 13px 24px;
-      text-decoration: none; cursor: pointer; border: none;
-      transition: all 0.3s var(--ease);
-      position: relative; overflow: hidden;
-      white-space: nowrap;
-    }
-    .btn::before {
-      content: '';
-      position: absolute; top: 0; left: -100%; width: 100%; height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
-      transition: left 0.5s;
-    }
-    .btn:hover::before { left: 100%; }
-    .btn-arrow { transition: transform 0.25s var(--ease); font-size: 11px; }
-    .btn:hover .btn-arrow { transform: translateX(3px); }
+        .dot-live {
+            width: 7px; height: 7px;
+            background: var(--green);
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 6px var(--green);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%,100% { opacity:1; }
+            50% { opacity:0.4; }
+        }
 
-    .btn-primary {
-      background: linear-gradient(135deg, var(--red-bright) 0%, var(--red-dim) 100%);
-      color: white;
-      box-shadow: 0 4px 20px rgba(192,16,10,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 32px rgba(192,16,10,0.45), inset 0 1px 0 rgba(255,255,255,0.1);
-    }
-    .btn-primary:active { transform: translateY(0); }
+        .spin {
+            display: inline-block;
+            width: 14px; height: 14px;
+            border: 2px solid rgba(139,92,246,0.2);
+            border-top-color: var(--purple);
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-    .btn-ghost {
-      background: rgba(255,255,255,0.04);
-      color: var(--txt2);
-      border: 1px solid var(--border);
-    }
-    .btn-ghost:hover { color: white; border-color: rgba(255,255,255,0.15); background: rgba(255,255,255,0.07); transform: translateY(-2px); }
-
-    .btn-outline-red {
-      background: var(--red-subtle);
-      color: #ff6059;
-      border: 1px solid var(--border-r);
-    }
-    .btn-outline-red:hover { background: rgba(192,16,10,0.14); border-color: var(--red-bright); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(192,16,10,0.2); }
-
-    /* ─── Section layout ─────────────────────────────────────────── */
-    .section { padding: 120px 0; position: relative; }
-    .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; }
-
-    .section-badge {
-      display: inline-flex; align-items: center; gap: 7px;
-      padding: 6px 16px;
-      background: var(--red-subtle);
-      border: 1px solid rgba(192,16,10,0.25);
-      border-radius: 100px;
-      font-size: 11px; font-weight: 700;
-      color: #ff6059;
-      letter-spacing: 0.1em; text-transform: uppercase;
-    }
-    .section-badge i { font-size: 9px; }
-
-    .section-heading {
-      font-family: var(--font-head);
-      font-size: clamp(36px, 5vw, 56px);
-      font-weight: 800;
-      line-height: 1.08;
-      letter-spacing: -0.03em;
-      color: white;
-    }
-    .section-sub {
-      font-size: 16px; color: var(--txt2); font-weight: 300; line-height: 1.7;
-      max-width: 560px;
-    }
-
-    /* Hero */
-    .hero {
-      min-height: 100vh;
-      padding: 120px 0 80px;
-      display: grid;
-      align-items: center;
-    }
-    .hero-inner {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-    .hero-eyebrow {
-      display: inline-flex; align-items: center; gap: 10px;
-      padding: 6px 14px 6px 8px;
-      background: var(--red-subtle);
-      border: 1px solid rgba(192,16,10,0.25);
-      border-radius: 100px;
-      font-size: 12px; font-weight: 600; color: #ff6059;
-      margin-bottom: 28px;
-    }
-    .hero-eyebrow-dot {
-      width: 20px; height: 20px; border-radius: 50%;
-      background: rgba(192,16,10,0.2);
-      display: flex; align-items: center; justify-content: center;
-    }
-    .hero-eyebrow-dot::after {
-      content: ''; width: 7px; height: 7px; border-radius: 50%;
-      background: var(--red-bright);
-      animation: blink 2s ease-in-out infinite;
-    }
-    @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(0.7)} }
-
-    .hero-title {
-      font-family: var(--font-head);
-      font-size: clamp(44px, 5.5vw, 72px);
-      font-weight: 800;
-      line-height: 1.0;
-      letter-spacing: -0.04em;
-      color: white;
-      margin-bottom: 24px;
-    }
-    .hero-title .line-red { color: transparent; -webkit-text-stroke: 1px rgba(192,16,10,0.7); }
-    .hero-title .line-fill { display: block; }
-
-    .hero-desc {
-      font-size: 16px; color: var(--txt2); line-height: 1.75; font-weight: 300;
-      margin-bottom: 40px; max-width: 440px;
-    }
-
-    .hero-actions { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 52px; }
-
-    .hero-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-    .stat-item {
-      padding: 18px 20px;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      transition: all 0.3s var(--ease);
-      position: relative; overflow: hidden;
-    }
-    .stat-item::before {
-      content: '';
-      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-      background: linear-gradient(90deg, transparent, var(--red), transparent);
-      opacity: 0; transition: opacity 0.3s;
-    }
-    .stat-item:hover { border-color: var(--border-r); transform: translateY(-2px); }
-    .stat-item:hover::before { opacity: 1; }
-    .stat-num {
-      font-family: var(--font-head);
-      font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
-      background: linear-gradient(135deg, #ff5e57, var(--red));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-    }
-    .stat-label { font-size: 11px; color: var(--txt3); margin-top: 4px; font-weight: 500; letter-spacing: 0.03em; }
-
-    /* Video */
-    .hero-video-wrap {
-      position: relative;
-      border-radius: 20px;
-      overflow: hidden;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      box-shadow: 0 32px 80px rgba(0,0,0,0.5), 0 0 0 1px rgba(192,16,10,0.05);
-      transition: all 0.5s var(--ease);
-    }
-    .hero-video-wrap:hover {
-      border-color: rgba(192,16,10,0.35);
-      transform: translateY(-6px);
-      box-shadow: 0 48px 100px rgba(0,0,0,0.6), 0 0 60px rgba(192,16,10,0.1);
-    }
-    .video-ratio {
-      position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden;
-    }
-    .video-ratio iframe {
-      position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none;
-    }
-    .video-label {
-      padding: 16px 20px;
-      display: flex; align-items: center; gap: 10px;
-      background: rgba(0,0,0,0.3);
-      border-top: 1px solid var(--border);
-    }
-    .video-label-dot {
-      width: 8px; height: 8px; border-radius: 50%; background: var(--red-bright);
-      animation: blink 1.5s ease-in-out infinite;
-    }
-    .video-label-txt { font-size: 12px; font-weight: 500; color: var(--txt2); }
-
-    /* Features */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
-    }
-    .feature-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px;
-      transition: all 0.4s var(--ease);
-      position: relative; overflow: hidden;
-    }
-    .feature-card:hover {
-      border-color: rgba(192,16,10,0.25);
-      background: var(--bg3);
-      transform: translateY(-5px);
-      box-shadow: 0 20px 50px rgba(0,0,0,0.4), 0 0 30px rgba(192,16,10,0.08);
-    }
-    .feature-icon {
-      width: 50px; height: 50px; border-radius: 12px;
-      background: var(--red-subtle);
-      border: 1px solid rgba(192,16,10,0.15);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 20px; color: #ff5e57;
-      margin-bottom: 20px;
-      transition: all 0.4s var(--ease-bounce);
-    }
-    .feature-card:hover .feature-icon {
-      background: rgba(192,16,10,0.14);
-      border-color: var(--border-r);
-      transform: scale(1.08) rotate(5deg);
-      box-shadow: 0 4px 20px var(--red-glow);
-    }
-    .feature-card h3 {
-      font-size: 15px; font-weight: 700; color: white;
-      margin-bottom: 8px; letter-spacing: -0.01em;
-    }
-    .feature-card p {
-      font-size: 13px; color: var(--txt2); line-height: 1.65; font-weight: 300; margin-bottom: 16px;
-    }
-    .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
-    .tag {
-      font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em;
-      padding: 3px 10px; border-radius: 100px;
-      background: var(--red-subtle); color: #ff6059;
-      border: 1px solid rgba(192,16,10,0.18);
-    }
-
-    .mini-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;
-      margin-top: 24px;
-    }
-    .mini-card {
-      text-align: center; padding: 28px 20px;
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      transition: all 0.35s var(--ease);
-    }
-    .mini-card:hover { border-color: rgba(192,16,10,0.2); transform: translateY(-4px); background: var(--bg3); }
-    .mini-card-icon {
-      width: 48px; height: 48px; border-radius: 12px;
-      background: var(--red-subtle);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: #ff5e57; margin: 0 auto 16px;
-    }
-    .mini-card h4 { font-size: 14px; font-weight: 700; color: white; margin-bottom: 6px; }
-    .mini-card p { font-size: 12px; color: var(--txt2); font-weight: 300; line-height: 1.6; }
-
-    /* Pricing */
-    .pricing-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      max-width: 1100px; margin: 0 auto;
-    }
-    .price-card {
-      background: var(--bg2);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 28px 22px;
-      display: flex; flex-direction: column;
-      transition: all 0.4s var(--ease);
-      position: relative; overflow: hidden;
-    }
-    .price-card:hover { border-color: var(--border-r); transform: translateY(-6px); box-shadow: 0 24px 60px rgba(192,16,10,0.12); }
-    .price-card.featured {
-      border-color: rgba(192,16,10,0.4);
-      background: rgba(192,16,10,0.04);
-    }
-    .price-duration { font-size: 11px; font-weight: 700; color: var(--txt3); letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 10px; }
-    .price-duration.featured-txt { color: #ff5e57; }
-    .price-amount { font-family: var(--font-head); font-size: 32px; font-weight: 800; color: white; letter-spacing: -0.03em; margin-bottom: 6px; }
-    .price-desc { font-size: 12px; color: var(--txt3); margin-bottom: 22px; font-weight: 300; }
-    .price-features { list-style: none; display: flex; flex-direction: column; gap: 9px; margin-bottom: 24px; flex: 1; }
-    .price-features li { display: flex; align-items: flex-start; gap: 8px; font-size: 12px; color: var(--txt2); font-weight: 300; }
-    .price-features li i { color: var(--red-bright); margin-top: 2px; font-size: 11px; flex-shrink: 0; }
-    .price-badge {
-      position: absolute; top: 14px; right: 14px;
-      padding: 4px 10px;
-      background: linear-gradient(135deg, var(--red-bright), var(--red-dim));
-      color: white; font-size: 10px; font-weight: 700;
-      border-radius: 100px; letter-spacing: 0.08em;
-      box-shadow: 0 4px 14px rgba(192,16,10,0.35);
-    }
-
-    .lifetime-card {
-      max-width: 900px; margin: 24px auto 0;
-      background: linear-gradient(135deg, rgba(192,16,10,0.06) 0%, var(--bg2) 60%);
-      border: 1px solid rgba(192,16,10,0.3);
-      border-radius: 20px;
-      padding: 44px;
-      position: relative; overflow: hidden;
-    }
-    .lifetime-card-inner { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; }
-    .lifetime-pill {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 6px 14px;
-      background: rgba(192,16,10,0.12); border: 1px solid rgba(192,16,10,0.3);
-      border-radius: 100px; color: #ff5e57;
-      font-size: 11px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
-      margin-bottom: 20px;
-    }
-    .lifetime-price { font-family: var(--font-head); font-size: 48px; font-weight: 800; color: white; letter-spacing: -0.04em; margin-bottom: 12px; }
-    .lifetime-note { font-size: 13px; color: var(--txt2); margin-bottom: 8px; font-weight: 300; }
-    .lifetime-desc { font-size: 13px; color: var(--txt3); line-height: 1.7; margin-bottom: 28px; }
-    .lifetime-features { list-style: none; display: flex; flex-direction: column; gap: 12px; }
-    .lifetime-features li { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--txt2); }
-    .lifetime-features li i { color: var(--red-bright); margin-top: 2px; font-size: 13px; flex-shrink: 0; }
-    .lifetime-features li strong { color: white; font-weight: 600; }
-    .lifetime-badge {
-      position: absolute; top: 20px; right: 24px;
-      display: flex; align-items: center; gap: 7px;
-      padding: 6px 14px;
-      background: linear-gradient(135deg, var(--red-bright), var(--red-dim));
-      border-radius: 100px; color: white; font-size: 11px; font-weight: 700;
-      box-shadow: 0 4px 20px rgba(192,16,10,0.4);
-    }
-
-    /* Contact */
-    .contact-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 32px; max-width: 960px; margin: 0 auto; }
-    .contact-info-card {
-      background: var(--bg2); border: 1px solid var(--border); border-radius: 14px;
-      padding: 24px; transition: all 0.3s var(--ease);
-    }
-    .contact-info-card:hover { border-color: var(--border-r); transform: translateX(4px); }
-    .contact-icon {
-      width: 44px; height: 44px; border-radius: 10px;
-      background: var(--red-subtle); border: 1px solid rgba(192,16,10,0.15);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px; color: #ff5e57; margin-bottom: 14px;
-    }
-    .contact-link {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12.5px; font-weight: 600; color: var(--red-bright);
-      text-decoration: none; transition: gap 0.2s var(--ease);
-    }
-    .contact-link:hover { gap: 10px; }
-    .status-dot {
-      display: inline-flex; align-items: center; gap: 7px;
-      font-size: 12.5px; font-weight: 600; color: var(--red-bright);
-    }
-    .status-dot-circle {
-      width: 7px; height: 7px; border-radius: 50%; background: var(--red-bright);
-      animation: blink 2s ease-in-out infinite;
-    }
-
-    .contact-form-wrap {
-      background: var(--bg2); border: 1px solid var(--border); border-radius: 16px; padding: 36px;
-    }
-    .form-group { margin-bottom: 20px; }
-    .form-label {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 12.5px; font-weight: 600; color: var(--txt2);
-      margin-bottom: 8px;
-    }
-    .form-input, .form-textarea {
-      width: 100%; background: var(--bg3);
-      border: 1px solid var(--border); border-radius: 10px;
-      color: white; font-family: var(--font-body); font-size: 14px;
-      padding: 12px 16px;
-      transition: all 0.25s var(--ease);
-      outline: none;
-    }
-    .form-textarea { resize: vertical; min-height: 120px; line-height: 1.6; }
-    .form-input:focus, .form-textarea:focus {
-      border-color: rgba(192,16,10,0.45);
-      box-shadow: 0 0 0 3px rgba(192,16,10,0.08);
-      background: #101010;
-    }
-    .form-actions { display: flex; gap: 12px; flex-wrap: wrap; }
-    .form-success {
-      display: none;
-      background: rgba(34,197,94,0.08); border: 1px solid rgba(34,197,94,0.25);
-      border-radius: 10px; padding: 16px; text-align: center;
-      margin-top: 12px;
-    }
-    .form-success.show { display: block; }
-    .form-success p { font-size: 13px; color: #4ade80; font-weight: 500; }
-
-    /* Footer */
-    .footer {
-      background: #060606; border-top: 1px solid var(--border);
-      padding: 72px 0 32px;
-    }
-    .footer-grid { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 56px; }
-    .footer-brand p { font-size: 13.5px; color: var(--txt3); line-height: 1.75; margin: 16px 0 24px; font-weight: 300; max-width: 280px; }
-    .socials { display: flex; gap: 10px; }
-    .social-btn {
-      width: 38px; height: 38px; border-radius: 9px;
-      border: 1px solid var(--border);
-      background: var(--bg3);
-      display: flex; align-items: center; justify-content: center;
-      color: var(--txt3); font-size: 14px; text-decoration: none;
-      transition: all 0.3s var(--ease);
-    }
-    .social-btn:hover { color: white; border-color: var(--border-r); background: var(--red-subtle); transform: translateY(-3px); box-shadow: 0 6px 20px rgba(192,16,10,0.25); }
-
-    .footer-col h4 { font-family: var(--font-head); font-size: 11px; font-weight: 700; color: var(--red-bright); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 20px; }
-    .footer-links { list-style: none; display: flex; flex-direction: column; gap: 10px; }
-    .footer-links a { font-size: 13.5px; color: var(--txt3); text-decoration: none; transition: all 0.2s var(--ease); display: inline-block; }
-    .footer-links a:hover { color: var(--txt); transform: translateX(3px); }
-    .footer-bottom { padding-top: 28px; border-top: 1px solid rgba(255,255,255,0.04); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
-    .footer-bottom p { font-size: 12.5px; color: var(--txt3); font-weight: 300; }
-    .footer-bottom-links { display: flex; gap: 20px; }
-    .footer-bottom-links a { font-size: 12.5px; color: var(--txt3); text-decoration: none; transition: color 0.2s; }
-    .footer-bottom-links a:hover { color: var(--red-bright); }
-
-    /* Scroll reveal */
-    .reveal {
-      opacity: 0; transform: translateY(28px);
-      transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
-    }
-    .reveal.visible { opacity: 1; transform: translateY(0); }
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .hero-inner { grid-template-columns: 1fr; gap: 48px; }
-      .features-grid { grid-template-columns: repeat(2, 1fr); }
-      .pricing-grid { grid-template-columns: repeat(2, 1fr); }
-      .mini-grid { grid-template-columns: repeat(2, 1fr); }
-      .footer-grid { grid-template-columns: 1fr 1fr; gap: 36px; }
-      .lifetime-card-inner { grid-template-columns: 1fr; gap: 32px; }
-      .contact-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 768px) {
-      .navbar { padding: 0 16px; }
-      .nav-links, .nav-cta-discord { display: none; }
-      .hamburger { display: flex; }
-      .hero { padding: 100px 0 64px; }
-      .section { padding: 80px 0; }
-      .features-grid { grid-template-columns: 1fr; }
-      .pricing-grid { grid-template-columns: 1fr 1fr; }
-      .mini-grid { grid-template-columns: 1fr 1fr; }
-      .footer-grid { grid-template-columns: 1fr; gap: 28px; }
-      .lifetime-card { padding: 28px 20px; }
-    }
-    @media (max-width: 480px) {
-      .pricing-grid { grid-template-columns: 1fr; }
-      .hero-actions { flex-direction: column; }
-      .btn { width: 100%; justify-content: center; }
-      .mini-grid { grid-template-columns: 1fr; }
-    }
-  </style>
+        main { position: relative; z-index: 1; }
+        .hidden { display: none !important; }
+    </style>
 </head>
 <body>
 
-  <!-- Backgrounds -->
-  <div class="site-bg"></div>
-  <div class="grid-lines"></div>
-
-  <!-- NAVBAR -->
-  <nav class="navbar" id="navbar">
-    <a href="#" class="nav-logo">
-      <div class="nav-logo-icon"><i class="fas fa-code"></i></div>
-      <span class="nav-logo-text">Fiqqzr7HUB</span>
-    </a>
-
-    <ul class="nav-links">
-      <li><a href="#home" class="nav-link active">Home</a></li>
-      <li><a href="#features" class="nav-link">Features</a></li>
-      <li><a href="#pricing" class="nav-link">Pricing</a></li>
-      <li><a href="#contact" class="nav-link">Contact</a></li>
-    </ul>
-
-    <div class="nav-cta">
-      <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="nav-cta-discord">
-        <i class="fab fa-discord"></i> Discord
-      </a>
-      <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-primary" style="padding:9px 18px;font-size:13px;">
-        Buy Key <i class="fas fa-arrow-right btn-arrow"></i>
-      </a>
-    </div>
-
-    <button class="hamburger" id="hamburger" aria-label="Menu">
-      <span></span><span></span><span></span>
-    </button>
-  </nav>
-
-  <!-- Mobile Menu -->
-  <div class="mobile-overlay" id="mobileOverlay"></div>
-  <div class="mobile-drawer" id="mobileDrawer">
-    <button class="mobile-close" id="mobileClose"><i class="fas fa-times"></i></button>
-    <a href="#home" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
-    <a href="#features" class="mobile-nav-link"><i class="fas fa-star"></i> Features</a>
-    <a href="#pricing" class="mobile-nav-link"><i class="fas fa-tag"></i> Pricing</a>
-    <a href="#contact" class="mobile-nav-link"><i class="fas fa-envelope"></i> Contact</a>
-    <div class="mobile-divider"></div>
-    <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-primary" style="width:100%;">
-      <i class="fab fa-discord"></i> Join Discord
-    </a>
-    <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost" style="width:100%;margin-top:8px;">
-      <i class="fas fa-key"></i> Buy Key
-    </a>
-  </div>
-
-  <!-- HERO -->
-  <section class="hero" id="home">
-    <div class="container">
-      <div class="hero-inner">
+<header class="header">
+    <div style="display:flex;align-items:center;gap:10px;">
+        <div style="width:34px;height:34px;border-radius:10px;border:1px solid var(--border);background:linear-gradient(135deg,#7c3aed,#8b5cf6);display:flex;align-items:center;justify-content:center;">
+            <i class="fas fa-star" style="color:#fff;font-size:16px;"></i>
+        </div>
         <div>
-          <div class="hero-eyebrow reveal">
-            <div class="hero-eyebrow-dot"></div>
-            Premium Roblox Script Hub
-          </div>
-
-          <h1 class="hero-title reveal reveal-delay-1">
-            <span class="line-fill">Best</span>
-            <span class="line-fill gradient-text">Troll Map</span>
-            <span class="line-fill">Script.</span>
-          </h1>
-
-          <p class="hero-desc reveal reveal-delay-2">
-            Fiqqzr7 menghadirkan script Roblox premium dengan fitur lengkap, update otomatis, dan support 24/7. Performa maksimal, harga terjangkau.
-          </p>
-
-          <div class="hero-actions reveal reveal-delay-3">
-            <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-primary">
-              <i class="fas fa-key"></i> Buy Key Now <i class="fas fa-arrow-right btn-arrow"></i>
-            </a>
-            <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost">
-              <i class="fab fa-discord"></i> Join Discord
-            </a>
-          </div>
-
-          <div class="hero-stats reveal">
-            <div class="stat-item">
-              <div class="stat-num">500+</div>
-              <div class="stat-label">Active Users</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num">24+</div>
-              <div class="stat-label">Features</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-num">24/7</div>
-              <div class="stat-label">Support</div>
-            </div>
-          </div>
+            <div class="logo-text">STARSIX<span>.DASH</span></div>
+            <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;">Key Management System</div>
         </div>
-
-        <div class="hero-video-wrap reveal reveal-delay-2">
-          <div class="video-ratio">
-            <iframe
-              src="https://www.youtube.com/embed/8kByMs558NI"
-              title="Fiqqzr7 Showcase"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen>
-            </iframe>
-          </div>
-          <div class="video-label">
-            <div class="video-label-dot"></div>
-            <span class="video-label-txt">Watch our latest showcase video</span>
-          </div>
-        </div>
-      </div>
     </div>
-  </section>
-
-  <!-- FEATURES -->
-  <section class="section" id="features">
-    <div class="container">
-      <div style="text-align:center;margin-bottom:64px;">
-        <div style="display:flex;justify-content:center;margin-bottom:16px;" class="reveal">
-          <span class="section-badge"><i class="fas fa-star"></i> Fitur</span>
-        </div>
-        <h2 class="section-heading reveal reveal-delay-1" style="margin-bottom:16px;">List Fitur VIP</h2>
-        <p class="section-sub reveal reveal-delay-2" style="margin:0 auto;">Berikut adalah fitur-fitur script Rusuh yang sudah kami sediakan untuk kamu.</p>
-      </div>
-
-      <div class="features-grid">
-        <div class="feature-card reveal">
-          <div class="feature-icon"><i class="fas fa-user-shield"></i></div>
-          <h3>Bypass Admin Detection</h3>
-          <p>Otomatis kick dari server saat admin join. Cocok untuk push AFK tanpa ketahuan admin.</p>
-          <div class="tag-row"><span class="tag">Auto Kick</span><span class="tag">Safe Mode</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-1">
-          <div class="feature-icon"><i class="fas fa-clock"></i></div>
-          <h3>Bypass AFK</h3>
-          <p>Untuk menghindari kick idle 20 menit. Karakter secara otomatis tidak akan terkena kick oleh sistem.</p>
-          <div class="tag-row"><span class="tag">No Kick</span><span class="tag">24/7 Active</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-2">
-          <div class="feature-icon"><i class="fas fa-keyboard"></i></div>
-          <h3>Play/Stop Keybinds</h3>
-          <p>Tersedia keybinds untuk memudahkan player pc.</p>
-          <div class="tag-row"><span class="tag">PC Optimized</span><span class="tag">Quick Control</span></div>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon"><i class="fas fa-infinity"></i></div>
-          <h3>Fiqqzr7 Fitur</h3>
-          <p>Script fiqqzr7 juga mempunyai banyak fitur sesuai untuk rusuh .</p>
-          <div class="tag-row"><span class="tag">Continuous</span><span class="tag">No Stop</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-1">
-          <div class="feature-icon"><i class="fas fa-redo-alt"></i></div>
-          <h3>Auto Respawn</h3>
-          <p>Respawn otomatis untuk afk semasa rusuh.</p>
-          <div class="tag-row"><span class="tag">Smart Respawn</span><span class="tag">Auto Loop</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-2">
-          <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-          <h3>Enable God Mode</h3>
-          <p>Tidak akan terkena fall damage. Karakter tetap aman meskipun jatuh dari ketinggian apapun.</p>
-          <div class="tag-row"><span class="tag">No Damage</span><span class="tag">Safe Fall</span></div>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon"><i class="fas fa-tools"></i></div>
-          <h3>Auto Equip Coil</h3>
-          <p>Karakter secara otomatis akan memegang coil yang tersedia di server map tersebut.</p>
-          <div class="tag-row"><span class="tag">Auto Equip</span><span class="tag">Optional</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-1">
-          <div class="feature-icon"><i class="fas fa-user-tag"></i></div>
-          <h3>Copy Avatar</h3>
-          <p>Copy avatar player lain. Hanya terlihat oleh Anda (client-side only).</p>
-          <div class="tag-row"><span class="tag">Visual Only</span><span class="tag">Client Side</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-2">
-          <div class="feature-icon"><i class="fas fa-running"></i></div>
-          <h3>Custom Animation</h3>
-          <p>Ganti animasi idle, walk, jump, fall secara gratis. Terlihat oleh semua player (server-side).</p>
-          <div class="tag-row"><span class="tag">Server Side</span><span class="tag">Free Custom</span></div>
-        </div>
-        <div class="feature-card reveal">
-          <div class="feature-icon"><i class="fas fa-cloud"></i></div>
-          <h3>SkyBox</h3>
-          <p>Ganti skybox/awan untuk visual lebih menarik. Fitur tambahan untuk kenyamanan bermain.</p>
-          <div class="tag-row"><span class="tag">Custom Sky</span><span class="tag">Better Visual</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-1">
-          <div class="feature-icon"><i class="fas fa-sliders-h"></i></div>
-          <h3>Player Menu</h3>
-          <p>Kontrol walk speed, jump power, time lock, set time dan berbagai pengaturan player lainnya.</p>
-          <div class="tag-row"><span class="tag">Full Control</span><span class="tag">Advanced</span></div>
-        </div>
-        <div class="feature-card reveal reveal-delay-2">
-          <div class="feature-icon"><i class="fas fa-sync-alt"></i></div>
-          <h3>Auto Update</h3>
-          <p>Script Fiqqzr7 ini setiap hari diupdate, jadi jangan khawatir untuk yang ingin membeli script ini.</p>
-          <div class="tag-row"><span class="tag">Always Updated</span><span class="tag">24/7 Support</span></div>
-        </div>
-      </div>
-
-      <div class="mini-grid">
-        <div class="mini-card reveal">
-          <div class="mini-card-icon"><i class="fas fa-bolt"></i></div>
-          <h4>Simple Script</h4>
-          <p>Script Fiqqzr7 ini sangat simple untuk digunakan siapapun</p>
-        </div>
-        <div class="mini-card reveal reveal-delay-1">
-          <div class="mini-card-icon"><i class="fas fa-cog"></i></div>
-          <h4>Easy Config</h4>
-          <p>Konfigurasi mudah dan user-friendly untuk semua level</p>
-        </div>
-        <div class="mini-card reveal reveal-delay-2">
-          <div class="mini-card-icon"><i class="fas fa-users"></i></div>
-          <h4>Active Community</h4>
-          <p>Komunitas aktif dan helpful di Discord server kami</p>
-        </div>
-        <div class="mini-card reveal reveal-delay-3">
-          <div class="mini-card-icon"><i class="fas fa-headset"></i></div>
-          <h4>Premium Support</h4>
-          <p>Support 24/7 untuk semua member dengan fast response</p>
-        </div>
-      </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <span class="dot-live"></span>
+        <button onclick="refreshAll()" class="btn-ghost" style="padding:6px 12px;">
+            <i class="fas fa-rotate-right"></i>
+        </button>
     </div>
-  </section>
+</header>
 
-  <!-- PRICING -->
-  <section class="section" id="pricing">
-    <div class="container">
-      <div style="text-align:center;margin-bottom:64px;">
-        <div style="display:flex;justify-content:center;margin-bottom:16px;" class="reveal">
-          <span class="section-badge"><i class="fas fa-tag"></i> Harga VIP</span>
-        </div>
-        <h2 class="section-heading reveal reveal-delay-1" style="margin-bottom:16px;">List Harga VIP</h2>
-        <p class="section-sub reveal reveal-delay-2" style="margin:0 auto;">Silahkan sesuaikan durasi yang ingin dibeli. Semua paket memiliki fitur yang sama.</p>
-      </div>
+<main class="px-4 pt-4" id="mainContent">
 
-      <div class="pricing-grid">
-        <div class="price-card reveal">
-          <div class="price-duration">1 Day</div>
-          <div class="price-amount">FREE</div>
-          <div class="price-desc">Trial untuk coba script</div>
-          <ul class="price-features">
-            <li><i class="fas fa-check-circle"></i> Semua fitur lengkap</li>
-            <li><i class="fas fa-check-circle"></i> Update gratis</li>
-            <li><i class="fas fa-check-circle"></i> Priority support</li>
-            <li><i class="fas fa-check-circle"></i> Role Discord Visitor</li>
-          </ul>
-          <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost" style="width:100%;justify-content:center;">GET SCRIPT FREE</a>
+    <div id="dashboardView" class="view">
+        <div class="section-label">Overview</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
+            <div class="stat-card purple">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:4px;">TOTAL KEYS</div>
+                        <div style="font-size:26px;font-weight:800;color:#fff;line-height:1;" id="statTotalKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(139,92,246,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-key" style="color:var(--purple);font-size:13px;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:4px;">AKTIF</div>
+                        <div style="font-size:26px;font-weight:800;color:#fff;line-height:1;" id="statActiveKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(16,185,129,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-circle-check" style="color:var(--green);font-size:13px;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:4px;">TRIAL</div>
+                        <div style="font-size:26px;font-weight:800;color:#fff;line-height:1;" id="statTrialKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(59,130,246,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-flask" style="color:var(--blue);font-size:13px;"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card amber">
+                <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                    <div>
+                        <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;margin-bottom:4px;">VIP/LIFETIME</div>
+                        <div style="font-size:16px;font-weight:800;color:#fff;line-height:1;margin-top:6px;" id="statVipKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(245,158,11,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-crown" style="color:var(--amber);font-size:13px;"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="price-card reveal reveal-delay-1">
-          <div class="price-duration">3 Days</div>
-          <div class="price-amount">RM 2</div>
-          <div class="price-desc">Paket weekend perfect</div>
-          <ul class="price-features">
-            <li><i class="fas fa-check-circle"></i> Semua fitur lengkap</li>
-            <li><i class="fas fa-check-circle"></i> Update gratis</li>
-            <li><i class="fas fa-check-circle"></i> Priority support</li>
-            <li><i class="fas fa-check-circle"></i> Role Discord VIP</li>
-          </ul>
-          <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost" style="width:100%;justify-content:center;">Beli Sekarang</a>
-        </div>
-        <div class="price-card featured reveal reveal-delay-2">
-          <div class="price-badge"><i class="fas fa-fire" style="margin-right:4px;"></i>POPULAR</div>
-          <div class="price-duration featured-txt">12 Days</div>
-          <div class="price-amount">RM 4</div>
-          <div class="price-desc">Paling banyak dipilih!</div>
-          <ul class="price-features">
-            <li><i class="fas fa-check-circle"></i> Semua fitur lengkap</li>
-            <li><i class="fas fa-check-circle"></i> Update gratis</li>
-            <li><i class="fas fa-check-circle"></i> Priority support</li>
-            <li><i class="fas fa-check-circle"></i> Role Discord VIP</li>
-          </ul>
-          <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-primary" style="width:100%;justify-content:center;">Beli Sekarang</a>
-        </div>
-        <div class="price-card reveal reveal-delay-3">
-          <div class="price-duration">20 Days</div>
-          <div class="price-amount">RM 5</div>
-          <div class="price-desc">Value untuk 3 minggu</div>
-          <ul class="price-features">
-            <li><i class="fas fa-check-circle"></i> Semua fitur lengkap</li>
-            <li><i class="fas fa-check-circle"></i> Update gratis</li>
-            <li><i class="fas fa-check-circle"></i> Priority support</li>
-            <li><i class="fas fa-check-circle"></i> Role Discord VIP</li>
-          </ul>
-          <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost" style="width:100%;justify-content:center;">Beli Sekarang</a>
-        </div>
-        <div class="price-card reveal">
-          <div class="price-duration">30 Days</div>
-          <div class="price-amount">RM 6</div>
-          <div class="price-desc">Best value per hari!</div>
-          <ul class="price-features">
-            <li><i class="fas fa-check-circle"></i> Semua fitur lengkap</li>
-            <li><i class="fas fa-check-circle"></i> Update gratis</li>
-            <li><i class="fas fa-check-circle"></i> Priority support</li>
-            <li><i class="fas fa-check-circle"></i> Role Discord VIP</li>
-          </ul>
-          <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost" style="width:100%;justify-content:center;">Beli Sekarang</a>
-        </div>
-      </div>
 
-      <!-- Lifetime -->
-      <div class="lifetime-card reveal">
-        <div class="lifetime-badge"><i class="fas fa-crown"></i> LIFETIME</div>
-        <div class="lifetime-card-inner">
-          <div>
-            <div class="lifetime-pill"><i class="fas fa-infinity"></i> Unlimited Time — No Expire</div>
-            <div class="lifetime-price">LIFETIME</div>
-            <div class="lifetime-note">Silahkan DM owner <strong style="color:white;">@Fiqqzr7Exploit</strong> di Discord.</div>
-            <div class="lifetime-desc">Untuk membeli script LIFETIME ini, harap hubungi owner Discord bernama @fiqqexploit untuk menanyakan apakah masih ada slot permanen atau tidak.</div>
-            <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-primary">
-              <i class="fab fa-discord"></i> Contact Admin <i class="fas fa-arrow-right btn-arrow"></i>
-            </a>
-          </div>
-          <div>
-            <h4 style="font-family:var(--font-head);font-size:13px;font-weight:700;color:var(--txt2);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:20px;display:flex;align-items:center;gap:8px;">
-              <i class="fas fa-star" style="color:var(--red-bright);"></i> Lifetime Benefits
-            </h4>
-            <ul class="lifetime-features">
-              <li><i class="fas fa-check-circle"></i><span><strong>Unlimited Time</strong> — Key tidak akan pernah expire</span></li>
-              <li><i class="fas fa-check-circle"></i><span><strong>Keamanan Akun</strong> — Lebih di utamakan dan diprioritaskan</span></li>
-              <li><i class="fas fa-check-circle"></i><span><strong>Role VIP-KING</strong> — Mendapatkan role Discord eksklusif</span></li>
-              <li><i class="fas fa-check-circle"></i><span><strong>Semua Fitur</strong> — Akses penuh semua fitur premium</span></li>
-            </ul>
-          </div>
+        <div class="card p-3 mb-4">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div class="section-label" style="margin:0;">Statistik Key</div>
+                <span style="font-size:9px;color:var(--purple);font-family:'Space Mono',monospace;">2026</span>
+            </div>
+            <canvas id="keyChart" height="130"></canvas>
         </div>
-      </div>
 
-      <p style="text-align:center;font-size:12.5px;color:var(--txt3);margin-top:28px;" class="reveal">
-        <i class="fas fa-info-circle" style="color:var(--red-bright);margin-right:6px;"></i>
-        Semua paket memiliki fitur yang sama. Perbedaan hanya di durasi expire key.
-      </p>
+        <div class="card p-3">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                <div class="section-label" style="margin:0;">Log Aktiviti</div>
+                <span id="activityCount" style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;"></span>
+            </div>
+            <div id="activityLog" style="max-height:220px;overflow-y:auto;">
+                <div style="text-align:center;color:var(--muted);font-size:11px;padding:20px;font-family:'Space Mono',monospace;">Loading...</div>
+            </div>
+        </div>
     </div>
-  </section>
 
-  <!-- CONTACT -->
-  <section class="section" id="contact">
-    <div class="container">
-      <div style="text-align:center;margin-bottom:64px;">
-        <div style="display:flex;justify-content:center;margin-bottom:16px;" class="reveal">
-          <span class="section-badge"><i class="fas fa-envelope"></i> Support</span>
+    <div id="keysView" class="view hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <div style="font-size:16px;font-weight:700;">Manage Keys</div>
+                <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;" id="keysCount">— keys</div>
+            </div>
+            <button onclick="openAddKeyModal()" class="btn-primary" style="padding:8px 14px;">
+                <i class="fas fa-plus" style="margin-right:5px;font-size:10px;"></i>Tambah
+            </button>
         </div>
-        <h2 class="section-heading reveal reveal-delay-1" style="margin-bottom:16px;">Ada Kendala?</h2>
-        <p class="section-sub reveal reveal-delay-2" style="margin:0 auto;">Silahkan masukkan pesan di bawah ini jika terdapat kendala atau agar kami bisa membantu.</p>
-      </div>
-
-      <div class="contact-grid">
-        <div class="contact-info">
-          <div class="contact-info-card reveal">
-            <div class="contact-icon"><i class="fab fa-discord"></i></div>
-            <h3>Discord Server</h3>
-            <p>Join komunitas kami dan dapatkan support langsung dari tim kami.</p>
-            <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="contact-link">
-              Join Discord <i class="fas fa-arrow-right" style="font-size:10px;"></i>
-            </a>
-          </div>
-          <div class="contact-info-card reveal reveal-delay-1">
-            <div class="contact-icon"><i class="fas fa-clock"></i></div>
-            <h3>Response Time</h3>
-            <p>Kami merespon dalam 1–2 jam untuk semua member premium.</p>
-            <div class="status-dot">
-              <div class="status-dot-circle"></div> Online 24/7
-            </div>
-          </div>
-          <div class="contact-info-card reveal reveal-delay-2">
-            <div class="contact-icon"><i class="fas fa-headset"></i></div>
-            <h3>Premium Support</h3>
-            <p>Dedicated support untuk semua customer dengan fast response time.</p>
-          </div>
+        <div id="keysList" style="max-height:calc(100vh - 200px);overflow-y:auto;">
+            <div style="text-align:center;color:var(--muted);padding:40px;font-family:'Space Mono',monospace;font-size:11px;">Loading...</div>
         </div>
-
-        <div class="contact-form-wrap reveal reveal-delay-1">
-          <form id="contactForm" novalidate>
-            <div class="form-group">
-              <label class="form-label" for="name"><i class="fas fa-user"></i> Nama</label>
-              <input type="text" id="name" name="name" class="form-input" placeholder="Masukkan nama anda" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="email"><i class="fas fa-envelope"></i> Email</label>
-              <input type="email" id="email" name="email" class="form-input" placeholder="Masukan email anda contoh: fiqqzrexploit@gmail.com" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="subject"><i class="fas fa-tag"></i> Subject</label>
-              <input type="text" id="subject" name="subject" class="form-input" placeholder="Perihal pesan Anda" required />
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="message"><i class="fas fa-comment-dots"></i> Pesan</label>
-              <textarea id="message" name="message" class="form-textarea" placeholder="Tulis pesan Anda disini..." required></textarea>
-            </div>
-            <div class="form-actions">
-              <button type="submit" class="btn btn-primary">
-                <i class="fas fa-paper-plane"></i> Kirim Pesan <i class="fas fa-arrow-right btn-arrow"></i>
-              </button>
-              <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="btn btn-ghost">
-                <i class="fab fa-discord"></i> Chat di Discord
-              </a>
-            </div>
-            <div class="form-success" id="formSuccess">
-              <p><i class="fas fa-check-circle" style="margin-right:8px;"></i>Pesan berhasil dikirim! Silahkan tunggu respon dari kami.</p>
-            </div>
-          </form>
-        </div>
-      </div>
     </div>
-  </section>
 
-  <!-- FOOTER -->
-  <footer class="footer">
-    <div class="container">
-      <div class="footer-grid">
-        <div class="footer-brand">
-          <a href="#" class="nav-logo">
-            <div class="nav-logo-icon"><i class="fas fa-code"></i></div>
-            <span class="nav-logo-text">Fiqqzr7HUB</span>
-          </a>
-          <p>Premium Roblox scripting community delivering the best scripts for your gaming experience.</p>
-          <div class="socials">
-            <a href="https://discord.gg/gygcHzVwFy" target="_blank" class="social-btn"><i class="fab fa-discord"></i></a>
-            <a href="#" class="social-btn"><i class="fab fa-youtube"></i></a>
-            <a href="#" class="social-btn"><i class="fab fa-twitter"></i></a>
-          </div>
+    <div id="usersView" class="view hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <div style="font-size:16px;font-weight:700;">Users</div>
+                <div style="font-size:10px;color:var(--muted);font-family:'Space Mono',monospace;" id="usersCount">— users</div>
+            </div>
+            <button onclick="openAddUserModal()" class="btn-primary" style="padding:8px 14px;">
+                <i class="fas fa-user-plus" style="margin-right:5px;font-size:10px;"></i>Tambah
+            </button>
         </div>
-
-        <div class="footer-col">
-          <h4>List Script</h4>
-          <ul class="footer-links">
-            <li><a href="#">Fiqqzr7 | RUSUH</a></li>
-            <li><a href="#">Fiqqzr7 | TROLL</a></li>
-            <li><a href="#">Fiqqzr7 | COPYMAP</a></li>
-            <li><a href="#">Fiqqzr7 | BRINGPART</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Links</h4>
-          <ul class="footer-links">
-            <li><a href="#">Documentation</a></li>
-            <li><a href="#">Tutorials</a></li>
-            <li><a href="#">Support</a></li>
-            <li><a href="#features">Features</a></li>
-          </ul>
-        </div>
-
-        <div class="footer-col">
-          <h4>Support</h4>
-          <ul class="footer-links">
-            <li><a href="https://discord.gg/gygcHzVwFy" target="_blank">Discord Server</a></li>
-            <li><a href="#">FAQ</a></li>
-            <li><a href="#">Terms of Service</a></li>
-            <li><a href="#">Privacy Policy</a></li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="footer-bottom">
-        <p>© 2026 Fiqqzr7Hub. All rights reserved.</p>
-        <div class="footer-bottom-links">
-          <a href="#">Privacy</a>
-          <a href="#">Terms</a>
-          <a href="https://discord.gg/gygcHzVwFy" target="_blank">Contact</a>
-        </div>
-      </div>
+        <div id="usersList" style="max-height:calc(100vh - 200px);overflow-y:auto;"></div>
     </div>
-  </footer>
 
-  <script>
-    // Navbar scroll effect
-    const navbar = document.getElementById('navbar');
-    window.addEventListener('scroll', () => {
-      navbar.classList.toggle('scrolled', window.scrollY > 50);
-    }, { passive: true });
+    <div id="settingsView" class="view hidden">
+        <div style="font-size:16px;font-weight:700;margin-bottom:14px;">Tetapan</div>
+        
+        <div class="card p-4" style="margin-bottom:12px;">
+            <div style="font-size:10px;color:var(--purple);font-family:'Space Mono',monospace;margin-bottom:12px;letter-spacing:0.1em;">// GITHUB GIST CONFIG</div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">GIST ID</label>
+                <input type="text" id="settingGistId" class="inp" placeholder="abcdef1234567890">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">GITHUB TOKEN</label>
+                <input type="password" id="settingGithubToken" class="inp" placeholder="github_pat_xxx">
+            </div>
+            <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan</button>
+        </div>
 
-    // Active nav link
-    const sections = document.querySelectorAll('section[id]');
-    const navLinks = document.querySelectorAll('.nav-link');
-    const onScroll = () => {
-      let current = '';
-      sections.forEach(s => {
-        if (window.scrollY >= s.offsetTop - 120) current = s.id;
-      });
-      navLinks.forEach(l => {
-        l.classList.toggle('active', l.getAttribute('href') === '#' + current);
-      });
-    };
-    window.addEventListener('scroll', onScroll, { passive: true });
+        <div class="card p-4" style="margin-bottom:12px;">
+            <div style="font-size:10px;color:var(--purple);font-family:'Space Mono',monospace;margin-bottom:12px;letter-spacing:0.1em;">// DISCORD WEBHOOK</div>
+            <div style="margin-bottom:10px;">
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">WEBHOOK URL</label>
+                <input type="text" id="settingWebhookUrl" class="inp" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="testWebhook()" class="btn-ghost" style="flex:1;padding:9px;">Test</button>
+                <button onclick="saveWebhook()" class="btn-primary" style="flex:1;padding:9px;">Simpan</button>
+            </div>
+        </div>
 
-    // Smooth scroll
-    document.querySelectorAll('a[href^="#"]').forEach(a => {
-      a.addEventListener('click', e => {
-        const target = document.querySelector(a.getAttribute('href'));
-        if (target) { 
-          e.preventDefault(); 
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' }); 
+        <div class="card p-4">
+            <div style="font-size:10px;color:var(--purple);font-family:'Space Mono',monospace;margin-bottom:12px;letter-spacing:0.1em;">// BACKUP & RESTORE</div>
+            <button onclick="exportData()" class="btn-ghost" style="width:100%;padding:10px;margin-bottom:8px;">
+                <i class="fas fa-download" style="margin-right:6px;"></i>Export Data (JSON)
+            </button>
+            <button onclick="document.getElementById('importFile').click()" class="btn-ghost" style="width:100%;padding:10px;">
+                <i class="fas fa-upload" style="margin-right:6px;"></i>Import Data
+            </button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+        </div>
+    </div>
+
+</main>
+
+<nav class="bottom-nav">
+    <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+        <i class="fas fa-chart-line"></i><span>HOME</span>
+    </div>
+    <div class="nav-item" id="nav-keys" onclick="showView('keys')">
+        <i class="fas fa-key"></i><span>KEYS</span>
+    </div>
+    <div class="nav-item" id="nav-users" onclick="showView('users')">
+        <i class="fas fa-users"></i><span>USERS</span>
+    </div>
+    <div class="nav-item" id="nav-settings" onclick="showView('settings')">
+        <i class="fas fa-cog"></i><span>SET</span>
+    </div>
+</nav>
+
+<!-- MODAL ADD KEY -->
+<div id="modalAddKey" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">+ KEY BARU</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">KEY CODE</label>
+                <input type="text" id="addKeyCode" class="inp" placeholder="STARSIX-TRIAL-001">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">JENIS KEY</label>
+                <select id="addKeyRole" class="inp" onchange="toggleExpireField()">
+                    <option value="TRIAL">Trial</option>
+                    <option value="VIP">VIP</option>
+                    <option value="LIFETIME">Lifetime</option>
+                </select>
+            </div>
+            <div id="expireField">
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">TARIKH EXPIRED (YYYY-MM-DD)</label>
+                <input type="date" id="addKeyExpire" class="inp">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button onclick="closeModal('modalAddKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
+                <button onclick="submitAddKey()" class="btn-primary" style="flex:1;padding:10px;" id="btnAddKey">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT KEY -->
+<div id="modalEditKey" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">EDIT KEY</div>
+        <input type="hidden" id="editKeyCodeOrig">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">KEY CODE</label>
+                <input type="text" id="editKeyCode" class="inp">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">JENIS KEY</label>
+                <select id="editKeyRole" class="inp" onchange="toggleEditExpireField()">
+                    <option value="TRIAL">Trial</option>
+                    <option value="VIP">VIP</option>
+                    <option value="LIFETIME">Lifetime</option>
+                </select>
+            </div>
+            <div id="editExpireField">
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">TARIKH EXPIRED</label>
+                <input type="date" id="editKeyExpire" class="inp">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">USERNAME (pemilik)</label>
+                <input type="text" id="editKeyUsername" class="inp" placeholder="-">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button onclick="closeModal('modalEditKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
+                <button onclick="submitEditKey()" class="btn-primary" style="flex:1;padding:10px;" id="btnEditKey">Kemaskini</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ADD USER -->
+<div id="modalAddUser" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">+ USER BARU</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">USERNAME</label>
+                <input type="text" id="addUserUsername" class="inp" placeholder="username">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">EMAIL</label>
+                <input type="email" id="addUserEmail" class="inp" placeholder="email@example.com">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">ROLE</label>
+                <select id="addUserRole" class="inp">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">ASSIGN KEY</label>
+                <input type="text" id="addUserKey" class="inp" placeholder="STARSIX-XXX-001">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button onclick="closeModal('modalAddUser')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
+                <button onclick="submitAddUser()" class="btn-primary" style="flex:1;padding:10px;">Simpan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL EDIT USER -->
+<div id="modalEditUser" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;font-family:'Space Mono',monospace;">EDIT USER</div>
+        <input type="hidden" id="editUserId">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">USERNAME</label>
+                <input type="text" id="editUserUsername" class="inp">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">EMAIL</label>
+                <input type="email" id="editUserEmail" class="inp">
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">ROLE</label>
+                <select id="editUserRole" class="inp">
+                    <option value="user">User</option>
+                    <option value="admin">Admin</option>
+                </select>
+            </div>
+            <div>
+                <label style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;display:block;margin-bottom:5px;">ASSIGNED KEY</label>
+                <input type="text" id="editUserKey" class="inp" placeholder="-">
+            </div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button onclick="closeModal('modalEditUser')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
+                <button onclick="submitEditUser()" class="btn-primary" style="flex:1;padding:10px;" id="btnEditUser">Kemaskini</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ============================================================
+// STAR SIX COMMUNITY - KEY MANAGEMENT SYSTEM
+// Menggunakan GitHub Gist sebagai database (macam RullzsyHUB)
+// 3 Jenis Key: TRIAL, VIP, LIFETIME
+// ============================================================
+
+// Configuration
+let GIST_ID = localStorage.getItem('starsix_gist_id') || '';
+let GITHUB_TOKEN = localStorage.getItem('starsix_github_token') || '';
+let WEBHOOK_URL = localStorage.getItem('starsix_webhook_url') || '';
+
+// Data structure (sama macam script RullzsyHUB)
+// keys: { "KEYCODE": { "username": "", "role": "TRIAL", "expire": "2026-12-31" } }
+let keysData = {};
+let usersData = [];
+let activityData = [];
+let chart;
+
+// ============================================================
+// GITHUB GIST FUNCTIONS
+// ============================================================
+async function loadFromGist() {
+    if (!GIST_ID || !GITHUB_TOKEN) {
+        // Load from localStorage jika tiada Gist config
+        const saved = localStorage.getItem('starsix_keys_data');
+        if (saved) {
+            keysData = JSON.parse(saved);
+        } else {
+            keysData = {};
         }
-      });
-    });
-
-    // Mobile menu
-    const hamburger = document.getElementById('hamburger');
-    const mobileOverlay = document.getElementById('mobileOverlay');
-    const mobileDrawer = document.getElementById('mobileDrawer');
-    const mobileClose = document.getElementById('mobileClose');
-
-    const openMenu = () => {
-      hamburger.classList.add('open');
-      mobileOverlay.classList.add('open');
-      mobileDrawer.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    };
-    const closeMenu = () => {
-      hamburger.classList.remove('open');
-      mobileOverlay.classList.remove('open');
-      mobileDrawer.classList.remove('open');
-      document.body.style.overflow = '';
-    };
-
-    hamburger.addEventListener('click', openMenu);
-    mobileClose.addEventListener('click', closeMenu);
-    mobileOverlay.addEventListener('click', closeMenu);
-    mobileDrawer.querySelectorAll('a').forEach(a => a.addEventListener('click', closeMenu));
-
-    // Scroll reveal
-    const revealEls = document.querySelectorAll('.reveal');
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
+        
+        const savedUsers = localStorage.getItem('starsix_users_data');
+        if (savedUsers) {
+            usersData = JSON.parse(savedUsers);
+        } else {
+            usersData = [
+                { id: '1', username: 'Admin', email: 'admin@starsix.com', role: 'admin', joined: new Date().toISOString().split('T')[0], assignedKey: '' }
+            ];
         }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
-    revealEls.forEach(el => observer.observe(el));
+        
+        const savedActivity = localStorage.getItem('starsix_activity_data');
+        if (savedActivity) {
+            activityData = JSON.parse(savedActivity);
+        } else {
+            activityData = [{ action: 'System Ready', details: 'StarSix Community Online', time: new Date().toISOString() }];
+        }
+        
+        renderAll();
+        return;
+    }
+    
+    try {
+        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        
+        if (res.ok) {
+            const gist = await res.json();
+            const content = gist.files['starsix_data.json']?.content;
+            if (content) {
+                const data = JSON.parse(content);
+                keysData = data.keys || {};
+                usersData = data.users || [];
+                activityData = data.activityLog || [];
+                renderAll();
+                return;
+            }
+        }
+    } catch(e) {
+        console.error('Gist load error:', e);
+    }
+    
+    // Fallback ke localStorage
+    const saved = localStorage.getItem('starsix_keys_data');
+    if (saved) keysData = JSON.parse(saved);
+    if (!keysData || Object.keys(keysData).length === 0) {
+        // Sample data
+        const futureDate = new Date();
+        futureDate.setFullYear(futureDate.getFullYear() + 1);
+        keysData = {
+            "STARSIX-TRIAL-001": { username: "", role: "TRIAL", expire: futureDate.toISOString().split('T')[0] },
+            "STARSIX-VIP-001": { username: "", role: "VIP", expire: futureDate.toISOString().split('T')[0] },
+            "STARSIX-LIFE-001": { username: "Admin", role: "LIFETIME", expire: "-" }
+        };
+    }
+    
+    const savedUsers = localStorage.getItem('starsix_users_data');
+    if (savedUsers) usersData = JSON.parse(savedUsers);
+    else usersData = [{ id: '1', username: 'Admin', email: 'admin@starsix.com', role: 'admin', joined: new Date().toISOString().split('T')[0], assignedKey: 'STARSIX-LIFE-001' }];
+    
+    const savedActivity = localStorage.getItem('starsix_activity_data');
+    if (savedActivity) activityData = JSON.parse(savedActivity);
+    else activityData = [{ action: 'System Ready', details: 'StarSix Community Online', time: new Date().toISOString() }];
+    
+    renderAll();
+}
 
-    // Contact form
-    document.getElementById('contactForm').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const success = document.getElementById('formSuccess');
-      success.classList.add('show');
-      this.reset();
-      setTimeout(() => success.classList.remove('show'), 5000);
+async function saveToGist() {
+    if (!GIST_ID || !GITHUB_TOKEN) {
+        // Save ke localStorage
+        localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
+        localStorage.setItem('starsix_users_data', JSON.stringify(usersData));
+        localStorage.setItem('starsix_activity_data', JSON.stringify(activityData));
+        return true;
+    }
+    
+    const data = {
+        keys: keysData,
+        users: usersData,
+        activityLog: activityData
+    };
+    
+    try {
+        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                files: { 'starsix_data.json': { content: JSON.stringify(data, null, 2) } }
+            })
+        });
+        return res.ok;
+    } catch(e) {
+        console.error('Gist save error:', e);
+        return false;
+    }
+}
+
+function addActivity(action, details) {
+    activityData.unshift({ action, details, time: new Date().toISOString() });
+    if (activityData.length > 50) activityData = activityData.slice(0, 50);
+    saveToGist();
+    renderActivityLog();
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+function isExpired(expire) {
+    if (!expire || expire === '-' || expire === 'Lifetime') return false;
+    return new Date(expire) < new Date();
+}
+
+function getKeyStatus(keyCode, keyData) {
+    if (isExpired(keyData.expire)) return 'expired';
+    if (keyData.username && keyData.username !== '') return 'active';
+    return 'pending';
+}
+
+function getBadgeClass(role, status) {
+    if (status === 'expired') return 'badge-expired';
+    if (role === 'TRIAL') return 'badge-trial';
+    if (role === 'VIP') return 'badge-vip';
+    if (role === 'LIFETIME') return 'badge-lifetime';
+    return 'badge-active';
+}
+
+function toast(msg, type = 'ok') {
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    const colors = { ok: '#10b981', err: '#ef4444', info: '#8b5cf6' };
+    const icons = { ok: 'fa-circle-check', err: 'fa-circle-xmark', info: 'fa-circle-info' };
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};font-size:13px;"></i><span style="color:#e4e4f0;">${msg}</span>`;
+    document.body.appendChild(el);
+    setTimeout(() => el?.remove(), 2800);
+}
+
+function sendWebhook(action, details) {
+    if (!WEBHOOK_URL) return;
+    fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            username: 'StarSix Community',
+            content: `🔑 **${action}**\n${details}\n_${new Date().toLocaleString('ms-MY')}_`
+        })
+    }).catch(() => {});
+}
+
+// ============================================================
+// RENDER FUNCTIONS
+// ============================================================
+function renderStats() {
+    const total = Object.keys(keysData).length;
+    const active = Object.entries(keysData).filter(([code, data]) => !isExpired(data.expire) && data.username && data.username !== '').length;
+    const trial = Object.values(keysData).filter(d => d.role === 'TRIAL').length;
+    const vip = Object.values(keysData).filter(d => d.role === 'VIP' || d.role === 'LIFETIME').length;
+    
+    document.getElementById('statTotalKeys').textContent = total;
+    document.getElementById('statActiveKeys').textContent = active;
+    document.getElementById('statTrialKeys').textContent = trial;
+    document.getElementById('statVipKeys').textContent = vip;
+}
+
+function renderActivityLog() {
+    const el = document.getElementById('activityLog');
+    document.getElementById('activityCount').textContent = activityData.length + ' entri';
+    if (!activityData.length) {
+        el.innerHTML = `<div style="text-align:center;color:var(--muted);font-size:11px;padding:20px;">Tiada aktiviti</div>`;
+        return;
+    }
+    el.innerHTML = activityData.slice(0, 15).map(a => `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <div style="width:5px;height:5px;background:var(--purple);border-radius:50%;flex-shrink:0;"></div>
+            <div style="flex:1;min-width:0;">
+                <span style="color:#e4e4f0;font-size:10px;font-weight:600;">${a.action}</span>
+                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;overflow:hidden;text-overflow:ellipsis;">${a.details || ''}</span>
+            </div>
+            <span style="font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;flex-shrink:0;">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
+        </div>
+    `).join('');
+}
+
+function renderKeys() {
+    const el = document.getElementById('keysList');
+    document.getElementById('keysCount').textContent = Object.keys(keysData).length + ' keys';
+    
+    if (Object.keys(keysData).length === 0) {
+        el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada keys</div>`;
+        return;
+    }
+    
+    el.innerHTML = Object.entries(keysData).map(([code, data]) => {
+        const status = getKeyStatus(code, data);
+        const badgeClass = getBadgeClass(data.role, status);
+        const statusText = status === 'active' ? 'Aktif' : (status === 'expired' ? 'Expired' : 'Pending');
+        
+        return `
+        <div class="key-item ${status}" id="keyItem-${code.replace(/[^a-zA-Z0-9]/g, '_')}">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+                <div style="flex:1;min-width:0;margin-right:8px;">
+                    <div class="mono" style="font-size:10px;color:#fff;font-weight:700;overflow:hidden;text-overflow:ellipsis;">${code}</div>
+                    <div style="margin-top:4px;display:flex;gap:5px;flex-wrap:wrap;">
+                        <span class="badge ${badgeClass}">${data.role}</span>
+                        <span class="badge ${status === 'active' ? 'badge-active' : (status === 'expired' ? 'badge-expired' : 'badge-pending')}">${statusText}</span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="openEditKeyModal('${code.replace(/'/g, "\\'")}')" style="background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:8px;padding:5px 8px;color:var(--purple);cursor:pointer;">
+                        <i class="fas fa-pen" style="font-size:10px;"></i>
+                    </button>
+                    <button onclick="deleteKey('${code.replace(/'/g, "\\'")}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:5px 8px;color:var(--red);cursor:pointer;">
+                        <i class="fas fa-trash" style="font-size:10px;"></i>
+                    </button>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;">
+                <div>
+                    <div style="font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;">EXPIRED</div>
+                    <div style="font-size:9px;color:#e4e4f0;font-family:'Space Mono',monospace;">${data.expire === '-' ? 'Lifetime' : data.expire}</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;">PENGGUNA</div>
+                    <div style="font-size:9px;color:var(--purple);font-family:'Space Mono',monospace;overflow:hidden;text-overflow:ellipsis;">${data.username || '-'}</div>
+                </div>
+            </div>
+        </div>
+        `;
+    }).join('');
+}
+
+function renderUsers() {
+    const el = document.getElementById('usersList');
+    document.getElementById('usersCount').textContent = usersData.length + ' users';
+    
+    if (!usersData.length) {
+        el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada users</div>`;
+        return;
+    }
+    
+    el.innerHTML = usersData.map(u => `
+        <div class="card p-3" style="margin-bottom:8px;">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+                <div style="flex:1;">
+                    <div style="display:flex;align-items:center;gap:6px;margin-bottom:4px;">
+                        <div style="width:28px;height:28px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">${(u.username||'?')[0].toUpperCase()}</div>
+                        <div>
+                            <div style="font-size:11px;font-weight:700;">${u.username}</div>
+                            <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;">${u.email}</div>
+                        </div>
+                    </div>
+                    <div style="font-size:9px;color:var(--purple);font-family:'Space Mono',monospace;">Key: ${u.assignedKey || '-'}</div>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+                    <span class="badge badge-admin">${u.role}</span>
+                    <div style="display:flex;gap:5px;">
+                        <button onclick="openEditUserModal('${u.id}')" style="background:rgba(139,92,246,0.1);border:1px solid var(--border);border-radius:8px;padding:5px 8px;color:var(--purple);cursor:pointer;">
+                            <i class="fas fa-pen" style="font-size:10px;"></i>
+                        </button>
+                        <button onclick="deleteUser('${u.id}')" style="background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);border-radius:8px;padding:5px 8px;color:var(--red);cursor:pointer;">
+                            <i class="fas fa-trash" style="font-size:10px;"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:8px;padding-top:8px;border-top:1px solid rgba(255,255,255,0.05);font-size:8px;color:var(--muted);font-family:'Space Mono',monospace;">Joined: ${u.joined}</div>
+        </div>
+    `).join('');
+}
+
+function renderAll() {
+    renderStats();
+    renderActivityLog();
+    renderKeys();
+    renderUsers();
+    if (chart) updateChart();
+}
+
+// ============================================================
+// CHART
+// ============================================================
+function initChart() {
+    const ctx = document.getElementById('keyChart')?.getContext('2d');
+    if (!ctx) return;
+    
+    chart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Trial', 'VIP', 'Lifetime'],
+            datasets: [{
+                data: [0, 0, 0],
+                backgroundColor: ['#00ffff', '#ff2d75', '#8b5cf6'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: {
+                legend: { position: 'bottom', labels: { color: '#e4e4f0', font: { family: 'Space Mono', size: 9 } } }
+            }
+        }
     });
-  </script>
+    updateChart();
+}
+
+function updateChart() {
+    if (!chart) return;
+    const trial = Object.values(keysData).filter(d => d.role === 'TRIAL').length;
+    const vip = Object.values(keysData).filter(d => d.role === 'VIP').length;
+    const lifetime = Object.values(keysData).filter(d => d.role === 'LIFETIME').length;
+    chart.data.datasets[0].data = [trial, vip, lifetime];
+    chart.update();
+}
+
+// ============================================================
+// KEY CRUD
+// ============================================================
+function toggleExpireField() {
+    const role = document.getElementById('addKeyRole').value;
+    document.getElementById('expireField').style.display = role === 'LIFETIME' ? 'none' : '';
+}
+
+function toggleEditExpireField() {
+    const role = document.getElementById('editKeyRole').value;
+    document.getElementById('editExpireField').style.display = role === 'LIFETIME' ? 'none' : '';
+}
+
+function openAddKeyModal() {
+    document.getElementById('addKeyCode').value = '';
+    document.getElementById('addKeyRole').value = 'TRIAL';
+    document.getElementById('addKeyExpire').value = '';
+    document.getElementById('expireField').style.display = '';
+    openModal('modalAddKey');
+}
+
+async function submitAddKey() {
+    const code = document.getElementById('addKeyCode').value.trim().toUpperCase();
+    const role = document.getElementById('addKeyRole').value;
+    let expire = document.getElementById('addKeyExpire').value;
+    
+    if (!code) { toast('Masukkan key code!', 'err'); return; }
+    if (keysData[code]) { toast('Key code sudah wujud!', 'err'); return; }
+    
+    if (role !== 'LIFETIME' && !expire) {
+        // Default 30 days
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        expire = d.toISOString().split('T')[0];
+    }
+    
+    keysData[code] = { username: '', role: role, expire: role === 'LIFETIME' ? '-' : expire };
+    await saveToGist();
+    addActivity('Key Added', `${code} (${role})`);
+    sendWebhook('Key Added', `${code} (${role})`);
+    renderAll();
+    closeModal('modalAddKey');
+    toast('Key berjaya ditambah!', 'ok');
+}
+
+function openEditKeyModal(code) {
+    const data = keysData[code];
+    if (!data) return;
+    document.getElementById('editKeyCodeOrig').value = code;
+    document.getElementById('editKeyCode').value = code;
+    document.getElementById('editKeyRole').value = data.role;
+    document.getElementById('editKeyExpire').value = data.expire !== '-' ? data.expire : '';
+    document.getElementById('editKeyUsername').value = data.username || '';
+    document.getElementById('editExpireField').style.display = data.role === 'LIFETIME' ? 'none' : '';
+    openModal('modalEditKey');
+}
+
+async function submitEditKey() {
+    const origCode = document.getElementById('editKeyCodeOrig').value;
+    const newCode = document.getElementById('editKeyCode').value.trim().toUpperCase();
+    const role = document.getElementById('editKeyRole').value;
+    let expire = document.getElementById('editKeyExpire').value;
+    const username = document.getElementById('editKeyUsername').value.trim();
+    
+    if (!newCode) { toast('Key code tidak boleh kosong!', 'err'); return; }
+    
+    const data = keysData[origCode];
+    if (!data) return;
+    
+    // Handle rename
+    if (newCode !== origCode) {
+        if (keysData[newCode]) { toast('Key code sudah wujud!', 'err'); return; }
+        delete keysData[origCode];
+    }
+    
+    if (role !== 'LIFETIME' && !expire) {
+        const d = new Date();
+        d.setDate(d.getDate() + 30);
+        expire = d.toISOString().split('T')[0];
+    }
+    
+    keysData[newCode] = {
+        username: username,
+        role: role,
+        expire: role === 'LIFETIME' ? '-' : expire
+    };
+    
+    // Update user assigned key if needed
+    usersData.forEach(u => {
+        if (u.assignedKey === origCode) u.assignedKey = newCode;
+    });
+    
+    await saveToGist();
+    addActivity('Key Updated', `${newCode} → ${role}`);
+    sendWebhook('Key Updated', `${newCode} (${role})`);
+    renderAll();
+    closeModal('modalEditKey');
+    toast('Key dikemaskini!', 'ok');
+}
+
+async function deleteKey(code) {
+    if (!confirm(`Hapus key:\n${code}?`)) return;
+    delete keysData[code];
+    
+    // Remove from users
+    usersData.forEach(u => {
+        if (u.assignedKey === code) u.assignedKey = '';
+    });
+    
+    await saveToGist();
+    addActivity('Key Deleted', code);
+    sendWebhook('Key Deleted', code);
+    renderAll();
+    toast('Key dipadam!', 'ok');
+}
+
+// ============================================================
+// USER CRUD
+// ============================================================
+function openAddUserModal() {
+    document.getElementById('addUserUsername').value = '';
+    document.getElementById('addUserEmail').value = '';
+    document.getElementById('addUserRole').value = 'user';
+    document.getElementById('addUserKey').value = '';
+    openModal('modalAddUser');
+}
+
+async function submitAddUser() {
+    const username = document.getElementById('addUserUsername').value.trim();
+    const email = document.getElementById('addUserEmail').value.trim();
+    const role = document.getElementById('addUserRole').value;
+    const assignedKey = document.getElementById('addUserKey').value.trim().toUpperCase();
+    
+    if (!username) { toast('Username wajib!', 'err'); return; }
+    
+    const newUser = {
+        id: Date.now().toString(),
+        username,
+        email: email || '-',
+        role,
+        assignedKey: assignedKey || '',
+        joined: new Date().toISOString().split('T')[0]
+    };
+    
+    usersData.push(newUser);
+    
+    // Assign key if exists
+    if (assignedKey && keysData[assignedKey]) {
+        keysData[assignedKey].username = username;
+    }
+    
+    await saveToGist();
+    addActivity('User Added', username);
+    sendWebhook('User Added', username);
+    renderAll();
+    closeModal('modalAddUser');
+    toast('User ditambah!', 'ok');
+}
+
+function openEditUserModal(id) {
+    const user = usersData.find(u => u.id === id);
+    if (!user) return;
+    document.getElementById('editUserId').value = id;
+    document.getElementById('editUserUsername').value = user.username;
+    document.getElementById('editUserEmail').value = user.email || '';
+    document.getElementById('editUserRole').value = user.role;
+    document.getElementById('editUserKey').value = user.assignedKey || '';
+    openModal('modalEditUser');
+}
+
+async function submitEditUser() {
+    const id = document.getElementById('editUserId').value;
+    const username = document.getElementById('editUserUsername').value.trim();
+    const email = document.getElementById('editUserEmail').value.trim();
+    const role = document.getElementById('editUserRole').value;
+    const assignedKey = document.getElementById('editUserKey').value.trim().toUpperCase();
+    
+    const userIndex = usersData.findIndex(u => u.id === id);
+    if (userIndex === -1) return;
+    
+    const oldUsername = usersData[userIndex].username;
+    const oldKey = usersData[userIndex].assignedKey;
+    
+    // Clear old key assignment
+    if (oldKey && keysData[oldKey]) {
+        keysData[oldKey].username = '';
+    }
+    
+    usersData[userIndex] = {
+        ...usersData[userIndex],
+        username,
+        email: email || '-',
+        role,
+        assignedKey: assignedKey || ''
+    };
+    
+    // Assign new key
+    if (assignedKey && keysData[assignedKey]) {
+        keysData[assignedKey].username = username;
+    }
+    
+    // Update key username if changed
+    if (oldUsername !== username) {
+        Object.entries(keysData).forEach(([code, data]) => {
+            if (data.username === oldUsername) data.username = username;
+        });
+    }
+    
+    await saveToGist();
+    addActivity('User Updated', username);
+    renderAll();
+    closeModal('modalEditUser');
+    toast('User dikemaskini!', 'ok');
+}
+
+async function deleteUser(id) {
+    const user = usersData.find(u => u.id === id);
+    if (!user || !confirm(`Hapus user:\n${user.username}?`)) return;
+    
+    // Clear key assignment
+    if (user.assignedKey && keysData[user.assignedKey]) {
+        keysData[user.assignedKey].username = '';
+    }
+    
+    usersData = usersData.filter(u => u.id !== id);
+    await saveToGist();
+    addActivity('User Deleted', user.username);
+    renderAll();
+    toast('User dipadam!', 'ok');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
+function saveGistSettings() {
+    const gistId = document.getElementById('settingGistId').value.trim();
+    const token = document.getElementById('settingGithubToken').value.trim();
+    
+    if (gistId) localStorage.setItem('starsix_gist_id', gistId);
+    if (token) localStorage.setItem('starsix_github_token', token);
+    
+    GIST_ID = gistId;
+    GITHUB_TOKEN = token;
+    
+    toast('Gist settings disimpan!', 'ok');
+    loadFromGist();
+}
+
+function saveWebhook() {
+    WEBHOOK_URL = document.getElementById('settingWebhookUrl').value.trim();
+    localStorage.setItem('starsix_webhook_url', WEBHOOK_URL);
+    toast('Webhook disimpan!', 'ok');
+}
+
+function testWebhook() {
+    const url = document.getElementById('settingWebhookUrl').value.trim();
+    if (!url) { toast('Masukkan webhook URL!', 'err'); return; }
+    fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content: '🔔 Test dari StarSix Dashboard!' })
+    }).then(() => toast('Webhook berjaya!', 'ok'))
+      .catch(() => toast('Webhook gagal!', 'err'));
+}
+
+function exportData() {
+    const data = { keys: keysData, users: usersData, activityLog: activityData };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `starsix_backup_${new Date().toISOString().split('T')[0]}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Data dieksport!', 'ok');
+}
+
+function importData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.keys) keysData = data.keys;
+            if (data.users) usersData = data.users;
+            if (data.activityLog) activityData = data.activityLog;
+            saveToGist();
+            renderAll();
+            toast('Data diimport!', 'ok');
+        } catch(err) {
+            toast('File tidak valid!', 'err');
+        }
+    };
+    reader.readAsText(file);
+    input.value = '';
+}
+
+async function refreshAll() {
+    toast('Refresh...', 'info');
+    await loadFromGist();
+    toast('Data dikemaskini!', 'ok');
+}
+
+// ============================================================
+// MODAL & NAVIGATION
+// ============================================================
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
+
+document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.add('hidden'); });
+});
+
+const viewMap = { dashboard: 'dashboardView', keys: 'keysView', users: 'usersView', settings: 'settingsView' };
+
+function showView(name) {
+    Object.values(viewMap).forEach(v => document.getElementById(v).classList.add('hidden'));
+    document.getElementById(viewMap[name]).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('nav-' + name)?.classList.add('active');
+    
+    if (name === 'settings') {
+        document.getElementById('settingGistId').value = GIST_ID;
+        document.getElementById('settingGithubToken').value = GITHUB_TOKEN;
+        document.getElementById('settingWebhookUrl').value = WEBHOOK_URL;
+    }
+}
+
+// ============================================================
+// INIT
+// ============================================================
+initChart();
+loadFromGist();
+showView('dashboard');
+
+// Auto refresh every 30 seconds
+setInterval(() => { loadFromGist(); }, 30000);
+</script>
 </body>
 </html>
