@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>StarSix Community | Gist Sync</title>
+    <title>StarSix Community | Admin Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
@@ -26,13 +26,19 @@
         .header { position: sticky; top: 0; z-index: 50; background: rgba(5,5,8,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; }
         .logo-text { font-family: 'Space Mono', monospace; font-size: 15px; font-weight: 700; letter-spacing: 0.05em; color: #fff; }
         .logo-text span { color: var(--purple); }
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(5,5,8,0.97); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 8px; z-index: 50; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 10px; border-radius: 10px; cursor: pointer; color: var(--muted); font-family: 'Space Mono', monospace; }
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(5,5,8,0.97); backdrop-filter: blur(20px); border-top: 1px solid var(--border); display: flex; justify-content: space-around; padding: 10px 8px; padding-bottom: calc(10px + env(safe-area-inset-bottom)); z-index: 50; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 6px 10px; border-radius: 10px; cursor: pointer; color: var(--muted); transition: all 0.2s; font-family: 'Space Mono', monospace; }
         .nav-item i { font-size: 17px; }
-        .nav-item span { font-size: 8px; }
-        .nav-item.active { background: var(--purple-dim); color: var(--purple); border: 1px solid var(--border); }
+        .nav-item span { font-size: 8px; letter-spacing: 0.05em; }
+        .nav-item.active { background: rgba(139,92,246,0.08); color: var(--purple); border: 1px solid var(--border); }
         .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; position: relative; overflow: hidden; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(139,92,246,0.4), transparent); }
         .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 14px; position: relative; overflow: hidden; }
+        .stat-card::after { content: ''; position: absolute; bottom: -20px; right: -20px; width: 70px; height: 70px; border-radius: 50%; opacity: 0.06; }
+        .stat-card.purple::after { background: var(--purple); }
+        .stat-card.green::after { background: var(--green); }
+        .stat-card.blue::after { background: var(--blue); }
+        .stat-card.amber::after { background: var(--amber); }
         .badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 6px; font-size: 9px; font-family: 'Space Mono', monospace; font-weight: 700; }
         .badge-active { background: rgba(16,185,129,0.1); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
         .badge-expired { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
@@ -40,12 +46,15 @@
         .badge-vip { background: rgba(255,45,117,0.1); color: #ff2d75; border: 1px solid rgba(255,45,117,0.2); }
         .badge-lifetime { background: rgba(139,92,246,0.1); color: var(--purple); border: 1px solid var(--border); }
         .mono { font-family: 'Space Mono', monospace; }
-        .btn-primary { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: #fff; border: none; border-radius: 10px; font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; padding: 8px 14px; }
+        .btn-primary { background: linear-gradient(135deg, #7c3aed, #8b5cf6); color: #fff; border: none; border-radius: 10px; font-family: 'Space Mono', monospace; font-size: 11px; letter-spacing: 0.05em; cursor: pointer; transition: all 0.2s; padding: 8px 14px; }
+        .btn-primary:active { transform: scale(0.97); }
         .btn-ghost { background: rgba(255,255,255,0.05); color: var(--muted); border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; padding: 8px 14px; }
         .btn-danger { background: rgba(239,68,68,0.1); color: var(--red); border: 1px solid rgba(239,68,68,0.2); border-radius: 10px; font-family: 'Space Mono', monospace; font-size: 11px; cursor: pointer; padding: 8px 14px; }
-        .btn-copy { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; padding: 4px 10px; }
+        .btn-copy { background: rgba(139,92,246,0.15); color: var(--purple); border: 1px solid rgba(139,92,246,0.3); border-radius: 8px; font-family: 'Space Mono', monospace; font-size: 10px; cursor: pointer; padding: 4px 10px; transition: all 0.2s; }
+        .btn-copy:hover { background: rgba(139,92,246,0.3); }
         .inp { width: 100%; background: rgba(255,255,255,0.04); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; color: var(--text); font-family: 'Space Mono', monospace; font-size: 11px; outline: none; }
-        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #0d0d14; border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; z-index: 200; font-family: 'Space Mono', monospace; font-size: 11px; animation: toastIn 0.3s ease; }
+        .inp:focus { border-color: rgba(139,92,246,0.5); }
+        .toast { position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%); background: #0d0d14; border: 1px solid var(--border); border-radius: 10px; padding: 10px 16px; display: flex; align-items: center; gap: 8px; z-index: 200; font-family: 'Space Mono', monospace; font-size: 11px; animation: toastIn 0.3s ease; box-shadow: 0 8px 32px rgba(0,0,0,0.5); }
         @keyframes toastIn { from { opacity:0; transform: translateX(-50%) translateY(10px); } to { opacity:1; transform: translateX(-50%) translateY(0); } }
         .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px); z-index: 100; display: flex; align-items: flex-end; justify-content: center; }
         .modal-box { background: var(--surface); border: 1px solid var(--border); border-radius: 20px 20px 0 0; width: 100%; max-width: 480px; padding: 20px 16px 32px; animation: slideUp 0.3s cubic-bezier(.16,1,.3,1); }
@@ -59,7 +68,7 @@
         @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.4; } }
         .section-label { font-size: 10px; font-family: 'Space Mono', monospace; color: var(--muted); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 10px; }
         .key-code-wrapper { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-        .key-code { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; word-break: break-all; background: rgba(255,255,255,0.03); padding: 4px 8px; border-radius: 6px; }
+        .key-code { font-family: 'Space Mono', monospace; font-size: 11px; font-weight: 700; word-break: break-all; background: rgba(255,255,255,0.03); padding: 4px 8px; border-radius: 6px; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
@@ -67,64 +76,230 @@
 <header class="header">
     <div style="display:flex;align-items:center;gap:10px;">
         <div style="width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#7c3aed,#8b5cf6);display:flex;align-items:center;justify-content:center;">
-            <i class="fas fa-star" style="color:#fff;font-size:16px;"></i>
+            <i class="fas fa-terminal" style="color:#fff;font-size:16px;"></i>
         </div>
         <div>
-            <div class="logo-text">STARSIX<span>.DASH</span></div>
-            <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;">Admin Panel</div>
+            <div class="logo-text">STARSIX<span>.ADMIN</span></div>
+            <div style="font-size:9px;color:var(--muted);font-family:'Space Mono',monospace;">Management Console</div>
         </div>
     </div>
     <div style="display:flex;align-items:center;gap:8px;">
         <span class="dot-live"></span>
-        <button onclick="refreshAll()" class="btn-ghost" style="padding:6px 12px;"><i class="fas fa-rotate-right"></i></button>
+        <button onclick="refreshAll()" class="btn-ghost" style="padding:6px 12px;">
+            <i class="fas fa-sync-alt"></i>
+        </button>
     </div>
 </header>
 
-<main class="px-4 pt-4">
+<main class="px-4 pt-4" id="mainContent">
+
     <div id="dashboardView" class="view">
-        <div class="section-label">Overview</div>
+        <div class="section-label">System Overview</div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
-            <div class="stat-card purple"><div style="display:flex;justify-content:space-between;"><div><div class="mono" style="font-size:9px;color:var(--muted);">TOTAL KEYS</div><div style="font-size:26px;font-weight:800;" id="statTotalKeys">—</div></div><div><i class="fas fa-key" style="color:var(--purple);"></i></div></div></div>
-            <div class="stat-card green"><div style="display:flex;justify-content:space-between;"><div><div class="mono" style="font-size:9px;color:var(--muted);">AKTIF</div><div style="font-size:26px;font-weight:800;" id="statActiveKeys">—</div></div><div><i class="fas fa-circle-check" style="color:var(--green);"></i></div></div></div>
-            <div class="stat-card blue"><div style="display:flex;justify-content:space-between;"><div><div class="mono" style="font-size:9px;color:var(--muted);">TRIAL</div><div style="font-size:26px;font-weight:800;" id="statTrialKeys">—</div></div><div><i class="fas fa-flask" style="color:var(--blue);"></i></div></div></div>
-            <div class="stat-card amber"><div style="display:flex;justify-content:space-between;"><div><div class="mono" style="font-size:9px;color:var(--muted);">VIP/LIFE</div><div style="font-size:20px;font-weight:800;" id="statVipKeys">—</div></div><div><i class="fas fa-crown" style="color:var(--amber);"></i></div></div></div>
+            <div class="stat-card purple">
+                <div style="display:flex;justify-content:space-between;">
+                    <div>
+                        <div class="mono" style="font-size:9px;color:var(--muted);">TOTAL KEYS</div>
+                        <div style="font-size:26px;font-weight:800;" id="statTotalKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(139,92,246,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-key" style="color:var(--purple);"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card green">
+                <div style="display:flex;justify-content:space-between;">
+                    <div>
+                        <div class="mono" style="font-size:9px;color:var(--muted);">ACTIVE</div>
+                        <div style="font-size:26px;font-weight:800;" id="statActiveKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(16,185,129,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-check-circle" style="color:var(--green);"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card blue">
+                <div style="display:flex;justify-content:space-between;">
+                    <div>
+                        <div class="mono" style="font-size:9px;color:var(--muted);">TRIAL</div>
+                        <div style="font-size:26px;font-weight:800;" id="statTrialKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(59,130,246,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-flask" style="color:var(--blue);"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="stat-card amber">
+                <div style="display:flex;justify-content:space-between;">
+                    <div>
+                        <div class="mono" style="font-size:9px;color:var(--muted);">VIP / LIFETIME</div>
+                        <div style="font-size:20px;font-weight:800;" id="statVipKeys">—</div>
+                    </div>
+                    <div style="width:32px;height:32px;background:rgba(245,158,11,0.15);border-radius:8px;display:flex;align-items:center;justify-content:center;">
+                        <i class="fas fa-crown" style="color:var(--amber);"></i>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="card p-3 mb-4"><div style="display:flex;justify-content:space-between;margin-bottom:10px;"><div class="section-label" style="margin:0;">Penjualan Bulanan</div><span class="mono" style="font-size:9px;color:var(--purple);">2026</span></div><canvas id="salesChart" height="130"></canvas></div>
-        <div class="card p-3"><div style="display:flex;justify-content:space-between;margin-bottom:10px;"><div class="section-label" style="margin:0;">Log Aktiviti</div><span id="activityCount" class="mono" style="font-size:9px;color:var(--muted);"></span></div><div id="activityLog" style="max-height:220px;overflow-y:auto;"></div></div>
+
+        <div class="card p-3 mb-4">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <div class="section-label" style="margin:0;">Monthly Generation</div>
+                <span class="mono" style="font-size:9px;color:var(--purple);">2026</span>
+            </div>
+            <canvas id="salesChart" height="130"></canvas>
+        </div>
+
+        <div class="card p-3">
+            <div style="display:flex;justify-content:space-between;margin-bottom:10px;">
+                <div class="section-label" style="margin:0;">Activity Log</div>
+                <span id="activityCount" class="mono" style="font-size:9px;color:var(--muted);"></span>
+            </div>
+            <div id="activityLog" style="max-height:220px;overflow-y:auto;"></div>
+        </div>
     </div>
 
     <div id="keysView" class="view hidden">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;"><div><div style="font-size:16px;font-weight:700;">Manage Keys</div><div class="mono" style="font-size:10px;color:var(--muted);" id="keysCount">— keys</div></div><button onclick="openAddKeyModal()" class="btn-primary"><i class="fas fa-plus"></i> Generate Key</button></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;">
+            <div>
+                <div style="font-size:16px;font-weight:700;">Key Management</div>
+                <div class="mono" style="font-size:10px;color:var(--muted);" id="keysCount">— keys</div>
+            </div>
+            <button onclick="openAddKeyModal()" class="btn-primary">
+                <i class="fas fa-plus"></i> Generate Key
+            </button>
+        </div>
         <div id="keysList" style="max-height:calc(100vh - 200px);overflow-y:auto;"></div>
     </div>
 
     <div id="settingsView" class="view hidden">
-        <div style="font-size:16px;font-weight:700;margin-bottom:14px;">Tetapan</div>
-        <div class="card p-4" style="margin-bottom:12px;"><div class="section-label" style="margin-bottom:12px;">// BACKUP & RESTORE</div><button onclick="exportData()" class="btn-ghost" style="width:100%;padding:10px;margin-bottom:8px;"><i class="fas fa-download"></i> Export Data (JSON)</button><button onclick="document.getElementById('importFile').click()" class="btn-ghost" style="width:100%;padding:10px;"><i class="fas fa-upload"></i> Import Data</button><input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)"></div>
-        <div class="card p-4"><div class="section-label" style="margin-bottom:12px;">// STATUS</div><div id="gistStatus" class="mono" style="font-size:10px;color:var(--muted);text-align:center;">Memeriksa sambungan Gist...</div></div>
+        <div style="font-size:16px;font-weight:700;margin-bottom:14px;">Configuration</div>
+        
+        <div class="card p-4" style="margin-bottom:12px;">
+            <div class="section-label" style="margin-bottom:12px;">// GITHUB GIST SYNC</div>
+            <div style="margin-bottom:10px;">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GIST ID</label>
+                <input type="text" id="settingGistId" class="inp" placeholder="436734a001bef407c514615ebff6ede3">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
+                <input type="password" id="settingGithubToken" class="inp" placeholder="ghp_xxx">
+            </div>
+            <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Save & Sync</button>
+        </div>
+
+        <div class="card p-4">
+            <div class="section-label" style="margin-bottom:12px;">// BACKUP & RESTORE</div>
+            <button onclick="exportData()" class="btn-ghost" style="width:100%;padding:10px;margin-bottom:8px;">
+                <i class="fas fa-download"></i> Export Data (JSON)
+            </button>
+            <button onclick="document.getElementById('importFile').click()" class="btn-ghost" style="width:100%;padding:10px;">
+                <i class="fas fa-upload"></i> Import Data
+            </button>
+            <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
+        </div>
+        
+        <div class="card p-4 mt-3">
+            <div class="section-label" style="margin-bottom:12px;">// CONNECTION STATUS</div>
+            <div id="gistStatus" class="mono" style="font-size:10px;color:var(--muted);text-align:center;padding:8px;">Checking Gist connection...</div>
+        </div>
     </div>
+
 </main>
 
 <nav class="bottom-nav">
-    <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')"><i class="fas fa-chart-line"></i><span>HOME</span></div>
-    <div class="nav-item" id="nav-keys" onclick="showView('keys')"><i class="fas fa-key"></i><span>KEYS</span></div>
-    <div class="nav-item" id="nav-settings" onclick="showView('settings')"><i class="fas fa-cog"></i><span>SET</span></div>
+    <div class="nav-item active" id="nav-dashboard" onclick="showView('dashboard')">
+        <i class="fas fa-chart-line"></i><span>DASHBOARD</span>
+    </div>
+    <div class="nav-item" id="nav-keys" onclick="showView('keys')">
+        <i class="fas fa-key"></i><span>KEYS</span>
+    </div>
+    <div class="nav-item" id="nav-settings" onclick="showView('settings')">
+        <i class="fas fa-sliders-h"></i><span>SETTINGS</span>
+    </div>
 </nav>
 
 <!-- MODALS -->
-<div id="modalAddKey" class="modal-bg hidden"><div class="modal-box"><div style="font-size:14px;font-weight:700;margin-bottom:14px;">+ GENERATE KEY</div><div style="display:flex;flex-direction:column;gap:10px;"><div><label class="mono" style="font-size:9px;color:var(--muted);">JENIS KEY</label><select id="addKeyRole" class="inp" onchange="toggleKeyFields()"><option value="TRIAL">Trial</option><option value="VIP">VIP</option><option value="LIFETIME">Lifetime</option></select></div><div id="usernameField"><label class="mono" style="font-size:9px;color:var(--muted);">USERNAME</label><input type="text" id="addKeyUsername" class="inp" placeholder="Nama Roblox"></div><div id="expireField"><label class="mono" style="font-size:9px;color:var(--muted);">TARIKH EXPIRED</label><input type="date" id="addKeyExpire" class="inp"></div><div style="display:flex;gap:8px;"><button onclick="closeModal('modalAddKey')" class="btn-ghost" style="flex:1;">Batal</button><button onclick="submitAddKey()" class="btn-primary" style="flex:1;">Generate</button></div></div></div></div>
-<div id="modalEditKey" class="modal-bg hidden"><div class="modal-box"><div style="font-size:14px;font-weight:700;margin-bottom:14px;">EDIT KEY</div><input type="hidden" id="editKeyCode"><div style="display:flex;flex-direction:column;gap:10px;"><div><label class="mono" style="font-size:9px;color:var(--muted);">JENIS KEY</label><select id="editKeyRole" class="inp" onchange="toggleEditKeyFields()"><option value="TRIAL">Trial</option><option value="VIP">VIP</option><option value="LIFETIME">Lifetime</option></select></div><div id="editUsernameField"><label class="mono" style="font-size:9px;color:var(--muted);">USERNAME</label><input type="text" id="editKeyUsername" class="inp"></div><div id="editExpireField"><label class="mono" style="font-size:9px;color:var(--muted);">TARIKH EXPIRED</label><input type="date" id="editKeyExpire" class="inp"></div><div style="display:flex;gap:8px;"><button onclick="closeModal('modalEditKey')" class="btn-ghost" style="flex:1;">Batal</button><button onclick="submitEditKey()" class="btn-primary" style="flex:1;">Kemaskini</button></div></div></div></div>
-<div id="modalDeleteConfirm" class="modal-bg hidden"><div class="modal-box"><div style="font-size:16px;font-weight:700;margin-bottom:14px;text-align:center;">⚠️ DELETE</div><div style="text-align:center;margin-bottom:20px;"><i class="fas fa-trash-alt" style="font-size:40px;color:var(--red);margin-bottom:10px;"></i><p id="deleteMessage">Anda pasti mahu hapus item ini?</p></div><div style="display:flex;gap:8px;"><button onclick="closeModal('modalDeleteConfirm')" class="btn-ghost" style="flex:1;">Batal</button><button id="deleteConfirmBtn" class="btn-danger" style="flex:1;">Hapus</button></div></div></div>
+<div id="modalAddKey" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Generate New Key</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">KEY TYPE</label>
+                <select id="addKeyRole" class="inp" onchange="toggleKeyFields()">
+                    <option value="TRIAL">Trial</option>
+                    <option value="VIP">VIP</option>
+                    <option value="LIFETIME">Lifetime</option>
+                </select>
+            </div>
+            <div id="usernameField">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">USERNAME</label>
+                <input type="text" id="addKeyUsername" class="inp" placeholder="Roblox username">
+            </div>
+            <div id="expireField">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">EXPIRY DATE</label>
+                <input type="date" id="addKeyExpire" class="inp">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="closeModal('modalAddKey')" class="btn-ghost" style="flex:1;padding:10px;">Cancel</button>
+                <button onclick="submitAddKey()" class="btn-primary" style="flex:1;padding:10px;">Generate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEditKey" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">Edit Key</div>
+        <input type="hidden" id="editKeyCode">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">KEY TYPE</label>
+                <select id="editKeyRole" class="inp" onchange="toggleEditKeyFields()">
+                    <option value="TRIAL">Trial</option>
+                    <option value="VIP">VIP</option>
+                    <option value="LIFETIME">Lifetime</option>
+                </select>
+            </div>
+            <div id="editUsernameField">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">USERNAME</label>
+                <input type="text" id="editKeyUsername" class="inp">
+            </div>
+            <div id="editExpireField">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">EXPIRY DATE</label>
+                <input type="date" id="editKeyExpire" class="inp">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="closeModal('modalEditKey')" class="btn-ghost" style="flex:1;padding:10px;">Cancel</button>
+                <button onclick="submitEditKey()" class="btn-primary" style="flex:1;padding:10px;">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalDeleteConfirm" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:16px;font-weight:700;margin-bottom:14px;text-align:center;">Confirm Deletion</div>
+        <div style="text-align:center;margin-bottom:20px;">
+            <i class="fas fa-trash-alt" style="font-size:40px;color:var(--red);margin-bottom:10px;"></i>
+            <p id="deleteMessage">Are you sure you want to delete this item?</p>
+        </div>
+        <div style="display:flex;gap:8px;">
+            <button onclick="closeModal('modalDeleteConfirm')" class="btn-ghost" style="flex:1;padding:10px;">Cancel</button>
+            <button id="deleteConfirmBtn" class="btn-danger" style="flex:1;padding:10px;">Delete</button>
+        </div>
+    </div>
+</div>
 
 <script>
 // ============================================================
-// STAR SIX - GIST SYNC (READ & WRITE)
+// STAR SIX ADMIN DASHBOARD
 // GIST ID: 436734a001bef407c514615ebff6ede3
-// FILE: keys.json
 // ============================================================
 
+// >>> SILA GANTIKAN TOKEN INI DENGAN TOKEN BARU YANG DIJANA <<<
 const GIST_ID = '436734a001bef407c514615ebff6ede3';
-const GITHUB_TOKEN = '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';
+const GITHUB_TOKEN = 'TOKEN_BARU_ANDA';  // <---- GANTI DENGAN TOKEN BARU
 const FILE_NAME = 'keys.json';
 
 let keysData = {};
@@ -132,44 +307,71 @@ let activityData = [];
 let lineChart;
 let pendingDeleteCallback = null;
 
-// Helper functions
-function toast(msg, type = 'ok') {
-    document.querySelectorAll('.toast').forEach(t => t.remove());
-    const colors = { ok: '#10b981', err: '#ef4444', info: '#8b5cf6' };
-    const icons = { ok: 'fa-circle-check', err: 'fa-circle-xmark', info: 'fa-circle-info' };
-    const el = document.createElement('div');
-    el.className = 'toast';
-    el.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};"></i><span>${msg}</span>`;
-    document.body.appendChild(el);
-    setTimeout(() => el?.remove(), 2800);
+// Save config to localStorage
+localStorage.setItem('starsix_gist_id', GIST_ID);
+localStorage.setItem('starsix_github_token', GITHUB_TOKEN);
+
+function initLineChart() {
+    const ctx = document.getElementById('salesChart')?.getContext('2d');
+    if (!ctx) return;
+    lineChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+            datasets: [{
+                label: 'Keys Generated',
+                data: [0, 0, 0, 0, 0, 0],
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139,92,246,0.08)',
+                fill: true,
+                tension: 0.4,
+                pointRadius: 3,
+                pointBackgroundColor: '#8b5cf6',
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#52526b', font: { size: 9 } } },
+                y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#52526b', font: { size: 9 } } }
+            }
+        }
+    });
 }
 
-function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, m => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;' }[m])); }
-function generateKeyCode(role) { const prefix = { TRIAL: 'TRL', VIP: 'VIP', LIFETIME: 'LIFE' }[role]; return `STARSIX-${prefix}-${Math.random().toString(36).substring(2, 10).toUpperCase()}`; }
-function isExpired(expire) { if (!expire || expire === '-') return false; return new Date(expire) < new Date(); }
-function copyToClipboard(text) { navigator.clipboard.writeText(text); toast('Key copied!', 'ok'); }
-
-function addActivity(action, details) {
-    activityData.unshift({ action, details, time: new Date().toISOString() });
-    if (activityData.length > 50) activityData = activityData.slice(0, 50);
-    localStorage.setItem('starsix_activity', JSON.stringify(activityData));
-    renderActivityLog();
+function updateLineChart() {
+    if (!lineChart) return;
+    const monthlyData = [0, 0, 0, 0, 0, 0];
+    Object.values(keysData).forEach(key => {
+        if (key.created) {
+            const month = new Date(key.created).getMonth();
+            if (month >= 0 && month < 6) monthlyData[month]++;
+        }
+    });
+    lineChart.data.datasets[0].data = monthlyData;
+    lineChart.update();
 }
 
 // ============================================================
-// GIST OPERATIONS - READ & WRITE
+// GITHUB GIST OPERATIONS
 // ============================================================
 async function loadFromGist() {
     try {
         const url = `https://api.github.com/gists/${GIST_ID}`;
         const response = await fetch(url, {
+            method: 'GET',
             headers: {
                 'Authorization': `token ${GITHUB_TOKEN}`,
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
         
-        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+        }
         
         const gist = await response.json();
         const fileContent = gist.files[FILE_NAME]?.content;
@@ -178,8 +380,8 @@ async function loadFromGist() {
             keysData = JSON.parse(fileContent);
             if (typeof keysData !== 'object' || Array.isArray(keysData)) keysData = {};
             localStorage.setItem('starsix_keys', JSON.stringify(keysData));
-            document.getElementById('gistStatus').innerHTML = `<i class="fas fa-check-circle" style="color:var(--green);"></i> Gist disambungkan. ${Object.keys(keysData).length} keys dimuat.`;
-            addActivity('Sync Success', `Loaded ${Object.keys(keysData).length} keys from Gist`);
+            document.getElementById('gistStatus').innerHTML = '<span style="color:var(--green);">CONNECTED</span> - ' + Object.keys(keysData).length + ' keys loaded';
+            addActivity('Sync Success', 'Loaded ' + Object.keys(keysData).length + ' keys from Gist');
         } else {
             keysData = {};
             await saveToGist();
@@ -188,7 +390,7 @@ async function loadFromGist() {
         return true;
     } catch(error) {
         console.error('Load error:', error);
-        document.getElementById('gistStatus').innerHTML = `<i class="fas fa-exclamation-circle" style="color:var(--red);"></i> Gagal sambung Gist: ${error.message}<br><span class="mono" style="font-size:9px;">Guna data tempatan</span>`;
+        document.getElementById('gistStatus').innerHTML = '<span style="color:var(--red);">FAILED</span> - ' + error.message + '<br><span class="mono" style="font-size:9px;">Using local data</span>';
         const saved = localStorage.getItem('starsix_keys');
         keysData = saved ? JSON.parse(saved) : {};
         renderAll();
@@ -197,13 +399,15 @@ async function loadFromGist() {
 }
 
 async function saveToGist() {
-    // Backup tempatan dulu
     localStorage.setItem('starsix_keys', JSON.stringify(keysData));
     
     try {
-        // Step 1: Dapatkan gist semasa
         const getRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Accept': 'application/vnd.github.v3+json' }
+            method: 'GET',
+            headers: {
+                'Authorization': `token ${GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
         });
         
         let currentFiles = {};
@@ -212,10 +416,8 @@ async function saveToGist() {
             currentFiles = gist.files || {};
         }
         
-        // Step 2: Update keys.json
         currentFiles[FILE_NAME] = { content: JSON.stringify(keysData, null, 2) };
         
-        // Step 3: Patch gist
         const patchRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
             method: 'PATCH',
             headers: {
@@ -226,17 +428,82 @@ async function saveToGist() {
             body: JSON.stringify({ files: currentFiles })
         });
         
-        if (!patchRes.ok) throw new Error(`HTTP ${patchRes.status}`);
+        if (!patchRes.ok) {
+            throw new Error(`HTTP ${patchRes.status}`);
+        }
         
-        toast('Saved to Gist!', 'ok');
-        document.getElementById('gistStatus').innerHTML = `<i class="fas fa-check-circle" style="color:var(--green);"></i> Gist disambungkan. Data disimpan.`;
+        toast('Saved to Gist', 'ok');
+        document.getElementById('gistStatus').innerHTML = '<span style="color:var(--green);">CONNECTED</span> - Data saved';
         return true;
     } catch(error) {
         console.error('Save error:', error);
-        toast(`Gagal simpan ke Gist: ${error.message}`, 'err');
-        document.getElementById('gistStatus').innerHTML = `<i class="fas fa-exclamation-circle" style="color:var(--red);"></i> Gagal simpan ke Gist: ${error.message}`;
+        toast('Failed to save to Gist: ' + error.message, 'err');
+        document.getElementById('gistStatus').innerHTML = '<span style="color:var(--red);">FAILED</span> - ' + error.message;
         return false;
     }
+}
+
+// ============================================================
+// ACTIVITY FUNCTIONS
+// ============================================================
+function loadActivityFromLocal() {
+    const saved = localStorage.getItem('starsix_activity');
+    activityData = saved ? JSON.parse(saved) : [];
+    if (activityData.length === 0) {
+        activityData = [{ action: 'System Ready', details: 'StarSix Admin Console Online', time: new Date().toISOString() }];
+    }
+    renderActivityLog();
+}
+
+function saveActivityToLocal() {
+    localStorage.setItem('starsix_activity', JSON.stringify(activityData));
+}
+
+function addActivity(action, details) {
+    activityData.unshift({ action, details, time: new Date().toISOString() });
+    if (activityData.length > 50) activityData = activityData.slice(0, 50);
+    saveActivityToLocal();
+    renderActivityLog();
+}
+
+// ============================================================
+// HELPER FUNCTIONS
+// ============================================================
+function generateKeyCode(role) {
+    const prefix = role === 'TRIAL' ? 'TRL' : (role === 'VIP' ? 'VIP' : 'LIFE');
+    const random = Math.random().toString(36).substring(2, 10).toUpperCase();
+    return `STARSIX-${prefix}-${random}`;
+}
+
+function isExpired(expire) {
+    if (!expire || expire === '-') return false;
+    return new Date(expire) < new Date();
+}
+
+function copyToClipboard(text) {
+    navigator.clipboard.writeText(text);
+    toast('Key copied to clipboard', 'ok');
+}
+
+function toast(msg, type = 'ok') {
+    document.querySelectorAll('.toast').forEach(t => t.remove());
+    const colors = { ok: '#10b981', err: '#ef4444', info: '#8b5cf6' };
+    const icons = { ok: 'fa-check-circle', err: 'fa-exclamation-circle', info: 'fa-info-circle' };
+    const el = document.createElement('div');
+    el.className = 'toast';
+    el.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};"></i><span>${msg}</span>`;
+    document.body.appendChild(el);
+    setTimeout(() => el?.remove(), 2800);
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
 // ============================================================
@@ -244,7 +511,7 @@ async function saveToGist() {
 // ============================================================
 function renderStats() {
     const total = Object.keys(keysData).length;
-    const active = Object.values(keysData).filter(d => !isExpired(d.expire)).length;
+    const active = Object.entries(keysData).filter(([code, data]) => !isExpired(data.expire)).length;
     const trial = Object.values(keysData).filter(d => d.role === 'TRIAL').length;
     const vip = Object.values(keysData).filter(d => d.role === 'VIP' || d.role === 'LIFETIME').length;
     document.getElementById('statTotalKeys').textContent = total;
@@ -255,96 +522,239 @@ function renderStats() {
 
 function renderActivityLog() {
     const el = document.getElementById('activityLog');
-    document.getElementById('activityCount').textContent = activityData.length + ' entri';
-    if (!activityData.length) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">Tiada aktiviti</div>'; return; }
-    el.innerHTML = activityData.slice(0, 15).map(a => `<div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);"><div style="width:5px;height:5px;background:var(--purple);border-radius:50%;"></div><div style="flex:1;"><span style="font-size:10px;font-weight:600;">${escapeHtml(a.action)}</span><span style="color:var(--muted);font-size:9px;display:block;">${escapeHtml(a.details)}</span></div><span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span></div>`).join('');
+    document.getElementById('activityCount').textContent = activityData.length + ' entries';
+    if (!activityData.length) {
+        el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:20px;">No activity</div>';
+        return;
+    }
+    el.innerHTML = activityData.slice(0, 15).map(a => `
+        <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
+            <div style="width:5px;height:5px;background:var(--purple);border-radius:50%;"></div>
+            <div style="flex:1;">
+                <span style="font-size:10px;font-weight:600;">${escapeHtml(a.action)}</span>
+                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${escapeHtml(a.details || '')}</span>
+            </div>
+            <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
+        </div>
+    `).join('');
 }
 
 function renderKeys() {
     const el = document.getElementById('keysList');
     document.getElementById('keysCount').textContent = Object.keys(keysData).length + ' keys';
-    if (Object.keys(keysData).length === 0) { el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">Tiada keys. Klik "Generate Key" untuk mula.</div>'; return; }
+    if (Object.keys(keysData).length === 0) {
+        el.innerHTML = '<div style="text-align:center;color:var(--muted);padding:40px;">No keys found. Click "Generate Key" to create one.</div>';
+        return;
+    }
     el.innerHTML = Object.entries(keysData).map(([code, data]) => {
         const status = !isExpired(data.expire);
-        let badgeClass = { TRIAL: 'badge-trial', VIP: 'badge-vip', LIFETIME: 'badge-lifetime' }[data.role];
-        return `<div class="key-item"><div style="display:flex;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;"><div class="key-code-wrapper"><div class="key-code">${escapeHtml(code)}</div><button onclick="copyToClipboard('${escapeHtml(code)}')" class="btn-copy"><i class="fas fa-copy"></i> Copy</button></div><div style="display:flex;gap:6px;"><button onclick="openEditKeyModal('${escapeHtml(code)}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button><button onclick="confirmDelete('key', '${escapeHtml(code)}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button></div></div><div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;"><div><span class="badge ${badgeClass}">${data.role}</span> <span class="badge ${status ? 'badge-active' : 'badge-expired'}">${status ? 'Aktif' : 'Expired'}</span></div><div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div><div class="mono" style="font-size:9px;">${data.expire === '-' ? 'Lifetime' : data.expire}</div></div><div><div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div><div class="mono" style="font-size:9px;color:var(--purple);">${escapeHtml(data.username) || 'Sesiapa'}</div></div><div><div class="mono" style="font-size:8px;color:var(--muted);">DIBUAT</div><div class="mono" style="font-size:9px;">${data.created || '-'}</div></div></div></div>`;
+        let badgeClass = data.role === 'TRIAL' ? 'badge-trial' : (data.role === 'VIP' ? 'badge-vip' : 'badge-lifetime');
+        return `
+        <div class="key-item">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:8px;">
+                <div class="key-code-wrapper">
+                    <div class="key-code">${escapeHtml(code)}</div>
+                    <button onclick="copyToClipboard('${escapeHtml(code)}')" class="btn-copy"><i class="fas fa-copy"></i> Copy</button>
+                </div>
+                <div style="display:flex;gap:6px;">
+                    <button onclick="openEditKeyModal('${escapeHtml(code)}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-edit"></i></button>
+                    <button onclick="confirmDelete('key', '${escapeHtml(code)}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+                <div><span class="badge ${badgeClass}">${data.role}</span> <span class="badge ${status ? 'badge-active' : 'badge-expired'}">${status ? 'Active' : 'Expired'}</span></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRES</div><div class="mono" style="font-size:9px;">${data.expire === '-' ? 'Lifetime' : data.expire}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">USER</div><div class="mono" style="font-size:9px;color:var(--purple);">${escapeHtml(data.username) || 'Anyone'}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">CREATED</div><div class="mono" style="font-size:9px;">${data.created || '-'}</div></div>
+            </div>
+        </div>`;
     }).join('');
 }
 
-function initLineChart() {
-    const ctx = document.getElementById('salesChart')?.getContext('2d');
-    if (!ctx) return;
-    lineChart = new Chart(ctx, { type: 'line', data: { labels: ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun'], datasets: [{ label: 'Keys Generated', data: [0,0,0,0,0,0], borderColor: '#8b5cf6', backgroundColor: 'rgba(139,92,246,0.08)', fill: true, tension: 0.4 }] }, options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } }, scales: { x: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#52526b', font: { size: 9 } } }, y: { grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#52526b', font: { size: 9 } } } } } });
+function renderAll() {
+    renderStats();
+    renderActivityLog();
+    renderKeys();
+    updateLineChart();
 }
-function updateLineChart() {
-    if (!lineChart) return;
-    const monthlyData = [0,0,0,0,0,0];
-    Object.values(keysData).forEach(k => { if(k.created) { let m = new Date(k.created).getMonth(); if(m>=0 && m<6) monthlyData[m]++; } });
-    lineChart.data.datasets[0].data = monthlyData;
-    lineChart.update();
-}
-function renderAll() { renderStats(); renderActivityLog(); renderKeys(); updateLineChart(); }
 
 // ============================================================
-// CRUD OPERATIONS
+// KEY CRUD OPERATIONS
 // ============================================================
-function toggleKeyFields() { let role = document.getElementById('addKeyRole').value; document.getElementById('usernameField').style.display = role === 'TRIAL' ? 'none' : ''; document.getElementById('expireField').style.display = role === 'LIFETIME' ? 'none' : ''; }
-function toggleEditKeyFields() { let role = document.getElementById('editKeyRole').value; document.getElementById('editUsernameField').style.display = role === 'TRIAL' ? 'none' : ''; document.getElementById('editExpireField').style.display = role === 'LIFETIME' ? 'none' : ''; }
-function openAddKeyModal() { document.getElementById('addKeyRole').value = 'TRIAL'; document.getElementById('addKeyUsername').value = ''; document.getElementById('addKeyExpire').value = ''; toggleKeyFields(); openModal('modalAddKey'); }
+function toggleKeyFields() {
+    const role = document.getElementById('addKeyRole').value;
+    document.getElementById('usernameField').style.display = role === 'TRIAL' ? 'none' : 'flex';
+    document.getElementById('expireField').style.display = role === 'LIFETIME' ? 'none' : 'flex';
+}
+
+function toggleEditKeyFields() {
+    const role = document.getElementById('editKeyRole').value;
+    document.getElementById('editUsernameField').style.display = role === 'TRIAL' ? 'none' : 'flex';
+    document.getElementById('editExpireField').style.display = role === 'LIFETIME' ? 'none' : 'flex';
+}
+
+function openAddKeyModal() {
+    document.getElementById('addKeyRole').value = 'TRIAL';
+    document.getElementById('addKeyUsername').value = '';
+    document.getElementById('addKeyExpire').value = '';
+    toggleKeyFields();
+    openModal('modalAddKey');
+}
+
 async function submitAddKey() {
     const role = document.getElementById('addKeyRole').value;
     const username = document.getElementById('addKeyUsername').value.trim();
     let expire = document.getElementById('addKeyExpire').value;
-    if (role !== 'TRIAL' && !username) { toast('Masukkan username!', 'err'); return; }
-    if (role !== 'LIFETIME' && !expire) { let d = new Date(); d.setDate(d.getDate() + 30); expire = d.toISOString().split('T')[0]; }
+    if (role !== 'TRIAL' && !username) { toast('Please enter username', 'err'); return; }
+    if (role !== 'LIFETIME' && !expire) {
+        const d = new Date(); d.setDate(d.getDate() + 30);
+        expire = d.toISOString().split('T')[0];
+    }
     const keyCode = generateKeyCode(role);
-    keysData[keyCode] = { username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire, created: new Date().toISOString().split('T')[0] };
+    keysData[keyCode] = { 
+        username: role === 'TRIAL' ? '' : username, 
+        role, 
+        expire: role === 'LIFETIME' ? '-' : expire, 
+        created: new Date().toISOString().split('T')[0] 
+    };
     await saveToGist();
-    addActivity('Key Generated', `${keyCode} (${role})`);
+    addActivity('Key Generated', keyCode + ' (' + role + ')');
     renderAll();
     closeModal('modalAddKey');
-    toast(`Key: ${keyCode}`, 'ok');
+    toast('Key: ' + keyCode, 'ok');
 }
-function openEditKeyModal(code) { let data = keysData[code]; if(!data) return; document.getElementById('editKeyCode').value = code; document.getElementById('editKeyRole').value = data.role; document.getElementById('editKeyUsername').value = data.username || ''; document.getElementById('editKeyExpire').value = data.expire !== '-' ? data.expire : ''; toggleEditKeyFields(); openModal('modalEditKey'); }
+
+function openEditKeyModal(code) {
+    const data = keysData[code];
+    if (!data) return;
+    document.getElementById('editKeyCode').value = code;
+    document.getElementById('editKeyRole').value = data.role;
+    document.getElementById('editKeyUsername').value = data.username || '';
+    document.getElementById('editKeyExpire').value = data.expire !== '-' ? data.expire : '';
+    toggleEditKeyFields();
+    openModal('modalEditKey');
+}
+
 async function submitEditKey() {
     const code = document.getElementById('editKeyCode').value;
     const role = document.getElementById('editKeyRole').value;
     const username = document.getElementById('editKeyUsername').value.trim();
     let expire = document.getElementById('editKeyExpire').value;
-    if (role !== 'TRIAL' && !username && keysData[code]?.username !== '') { toast('Masukkan username!', 'err'); return; }
-    if (role !== 'LIFETIME' && !expire && keysData[code]?.expire !== '-') { let d = new Date(); d.setDate(d.getDate() + 30); expire = d.toISOString().split('T')[0]; }
+    if (role !== 'TRIAL' && !username && keysData[code]?.username !== '') { toast('Please enter username', 'err'); return; }
+    if (role !== 'LIFETIME' && !expire && keysData[code]?.expire !== '-') {
+        const d = new Date(); d.setDate(d.getDate() + 30);
+        expire = d.toISOString().split('T')[0];
+    }
     keysData[code] = { ...keysData[code], username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire };
     await saveToGist();
-    addActivity('Key Updated', `${code} → ${role}`);
+    addActivity('Key Updated', code + ' -> ' + role);
     renderAll();
     closeModal('modalEditKey');
-    toast('Key dikemaskini!', 'ok');
+    toast('Key updated', 'ok');
 }
-function confirmDelete(type, id) { document.getElementById('deleteMessage').innerHTML = `Hapus key: <strong>${escapeHtml(id)}</strong>?`; pendingDeleteCallback = async () => { delete keysData[id]; await saveToGist(); addActivity('Key Deleted', id); renderAll(); closeModal('modalDeleteConfirm'); toast('Key dipadam!', 'ok'); }; openModal('modalDeleteConfirm'); document.getElementById('deleteConfirmBtn').onclick = () => { if(pendingDeleteCallback) pendingDeleteCallback(); }; }
+
+function confirmDelete(type, id) {
+    const msg = document.getElementById('deleteMessage');
+    if (type === 'key') {
+        msg.innerHTML = 'Delete key: <strong>' + escapeHtml(id) + '</strong>?';
+        pendingDeleteCallback = async () => {
+            delete keysData[id];
+            await saveToGist();
+            addActivity('Key Deleted', id);
+            renderAll();
+            closeModal('modalDeleteConfirm');
+            toast('Key deleted', 'ok');
+        };
+    }
+    const confirmBtn = document.getElementById('deleteConfirmBtn');
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    newBtn.id = 'deleteConfirmBtn';
+    newBtn.onclick = () => { if (pendingDeleteCallback) pendingDeleteCallback(); };
+    openModal('modalDeleteConfirm');
+}
 
 // ============================================================
-// UTILITIES
+// SETTINGS & UTILITIES
 // ============================================================
-function exportData() { let data = { keys: keysData, activityLog: activityData }; let blob = new Blob([JSON.stringify(data,null,2)], {type:'application/json'}); let a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`starsix_backup_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(a.href); toast('Data dieksport!','ok'); }
-function importData(input) { let file=input.files[0]; if(!file) return; let reader=new FileReader(); reader.onload=async function(e) { try { let data=JSON.parse(e.target.result); if(data.keys) keysData=data.keys; if(data.activityLog) activityData=data.activityLog; await saveToGist(); localStorage.setItem('starsix_activity',JSON.stringify(activityData)); renderAll(); toast('Data diimport!','ok'); } catch(err){ toast('File tidak valid!','err'); } }; reader.readAsText(file); input.value=''; }
-async function refreshAll() { toast('Refreshing...','info'); await loadFromGist(); renderAll(); toast('Data updated!','ok'); }
+function saveGistSettings() {
+    const gistId = document.getElementById('settingGistId').value.trim();
+    const token = document.getElementById('settingGithubToken').value.trim();
+    if (gistId) localStorage.setItem('starsix_gist_id', gistId);
+    if (token) localStorage.setItem('starsix_github_token', token);
+    toast('Settings saved. Reloading...', 'info');
+    setTimeout(() => location.reload(), 1000);
+}
+
+function exportData() {
+    const data = { keys: keysData, activityLog: activityData };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'starsix_backup_' + new Date().toISOString().split('T')[0] + '.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast('Data exported', 'ok');
+}
+
+function importData(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            if (data.keys) keysData = data.keys;
+            if (data.activityLog) activityData = data.activityLog;
+            await saveToGist();
+            saveActivityToLocal();
+            renderAll();
+            toast('Data imported', 'ok');
+        } catch(err) { toast('Invalid file', 'err'); }
+    };
+    reader.readAsText(file);
+    input.value = '';
+}
+
+async function refreshAll() {
+    toast('Refreshing...', 'info');
+    await loadFromGist();
+    loadActivityFromLocal();
+    toast('Data updated', 'ok');
+}
+
+// ============================================================
+// MODAL & NAVIGATION
+// ============================================================
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
-document.querySelectorAll('.modal-bg').forEach(bg=>{ bg.addEventListener('click',e=>{ if(e.target===bg) bg.classList.add('hidden'); }); });
-const viewMap = { dashboard:'dashboardView', keys:'keysView', settings:'settingsView' };
-function showView(name) { Object.values(viewMap).forEach(v=>document.getElementById(v).classList.add('hidden')); document.getElementById(viewMap[name]).classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active')); document.getElementById('nav-'+name)?.classList.add('active'); }
+
+document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', e => { if (e.target === bg) bg.classList.add('hidden'); });
+});
+
+const viewMap = { dashboard: 'dashboardView', keys: 'keysView', settings: 'settingsView' };
+
+function showView(name) {
+    Object.values(viewMap).forEach(v => document.getElementById(v).classList.add('hidden'));
+    document.getElementById(viewMap[name]).classList.remove('hidden');
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.getElementById('nav-' + name)?.classList.add('active');
+}
 
 // ============================================================
 // INITIALIZATION
 // ============================================================
 initLineChart();
-// Load activity
-let savedActivity = localStorage.getItem('starsix_activity');
-activityData = savedActivity ? JSON.parse(savedActivity) : [{ action: 'System Ready', details: 'StarSix Community Online', time: new Date().toISOString() }];
-// Load from Gist
+loadActivityFromLocal();
 loadFromGist();
 showView('dashboard');
 setInterval(() => { loadFromGist(); }, 60000);
+
+// Set Gist settings fields with current values
+document.getElementById('settingGistId').value = GIST_ID;
+document.getElementById('settingGithubToken').value = GITHUB_TOKEN;
 </script>
 </body>
 </html>
