@@ -435,8 +435,23 @@
     <div id="settingsView" class="view hidden">
         <div style="font-size:16px;font-weight:700;margin-bottom:14px;">Tetapan</div>
         
+        <!-- GitHub Gist Settings (Untuk KEYS) -->
         <div class="card p-4" style="margin-bottom:12px;">
-            <div class="section-label" style="margin-bottom:12px;">// SUPABASE CONFIG</div>
+            <div class="section-label" style="margin-bottom:12px;">// GITHUB GIST (KEYS SYSTEM)</div>
+            <div style="margin-bottom:10px;">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GIST ID</label>
+                <input type="text" id="settingGistId" class="inp" placeholder="Masukkan GIST ID">
+            </div>
+            <div style="margin-bottom:10px;">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
+                <input type="password" id="settingGithubToken" class="inp" placeholder="github_pat_xxx">
+            </div>
+            <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Sync Keys</button>
+        </div>
+
+        <!-- Supabase Settings (Untuk SCRIPTS) -->
+        <div class="card p-4" style="margin-bottom:12px;">
+            <div class="section-label" style="margin-bottom:12px;">// SUPABASE DATABASE (SCRIPTS)</div>
             <div style="margin-bottom:10px;">
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">SUPABASE URL</label>
                 <input type="text" id="settingSupabaseUrl" class="inp" placeholder="https://xxxxx.supabase.co">
@@ -445,7 +460,7 @@
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">SUPABASE ANON KEY</label>
                 <input type="password" id="settingSupabaseKey" class="inp" placeholder="eyJhbGciOiJIUzI1NiIs...">
             </div>
-            <button onclick="saveSupabaseSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Connect</button>
+            <button onclick="saveSupabaseSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Connect DB</button>
         </div>
 
         <div class="card p-4">
@@ -484,7 +499,7 @@
         <div style="display:flex;flex-direction:column;gap:10px;">
             <div>
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">JENIS KEY</label>
-                <select id="addKeyRole" class="inp">
+                <select id="addKeyRole" class="inp" onchange="toggleKeyFields()">
                     <option value="TRIAL">Trial</option>
                     <option value="VIP">VIP</option>
                     <option value="LIFETIME">Lifetime</option>
@@ -501,6 +516,35 @@
             <div style="display:flex;gap:8px;">
                 <button onclick="closeModal('modalAddKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
                 <button onclick="submitAddKey()" class="btn-primary" style="flex:1;padding:10px;">Generate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="modalEditKey" class="modal-bg hidden">
+    <div class="modal-box">
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">EDIT KEY</div>
+        <input type="hidden" id="editKeyCode">
+        <div style="display:flex;flex-direction:column;gap:10px;">
+            <div>
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">JENIS KEY</label>
+                <select id="editKeyRole" class="inp" onchange="toggleEditKeyFields()">
+                    <option value="TRIAL">Trial</option>
+                    <option value="VIP">VIP</option>
+                    <option value="LIFETIME">Lifetime</option>
+                </select>
+            </div>
+            <div id="editUsernameField">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">USERNAME</label>
+                <input type="text" id="editKeyUsername" class="inp">
+            </div>
+            <div id="editExpireField">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">TARIKH EXPIRED</label>
+                <input type="date" id="editKeyExpire" class="inp">
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="closeModal('modalEditKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
+                <button onclick="submitEditKey()" class="btn-primary" style="flex:1;padding:10px;">Kemaskini</button>
             </div>
         </div>
     </div>
@@ -552,15 +596,24 @@
 
 <script>
 // ============================================================
-// STARSIX DASHBOARD - SUPABASE DATABASE VERSION
+// STARSIX DASHBOARD - GITHUB GIST (KEYS) + SUPABASE (SCRIPTS)
 // ============================================================
 
+// ==================== GITHUB GIST CONFIG ====================
+let GIST_ID = localStorage.getItem('starsix_gist_id') || '';
+let GITHUB_TOKEN = localStorage.getItem('starsix_github_token') || '';
+let keysData = {};
+
+// ==================== SUPABASE CONFIG ====================
 let supabaseClient = null;
-let keysData = [];
 let scriptsData = [];
 let activityData = [];
+
+// ==================== GLOBAL ====================
 let lineChart;
 let pendingDeleteCallback = null;
+let pendingDeleteType = null;
+let pendingDeleteId = null;
 
 // ============================================================
 // INIT CHART
@@ -597,83 +650,130 @@ function initLineChart() {
 }
 
 // ============================================================
-// SUPABASE CONNECTION
+// GITHUB GIST FUNCTIONS (KEYS)
+// ============================================================
+async function loadKeysFromGist() {
+    if (!GIST_ID || !GITHUB_TOKEN) {
+        const saved = localStorage.getItem('starsix_keys_data');
+        keysData = saved ? JSON.parse(saved) : {};
+        if (Object.keys(keysData).length === 0) {
+            const expireDate = new Date();
+            expireDate.setFullYear(expireDate.getFullYear() + 1);
+            keysData = {
+                "STARSIX-TRIAL-DEMO": { username: "", role: "TRIAL", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
+                "STARSIX-VIP-DEMO": { username: "DemoUser", role: "VIP", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
+                "STARSIX-LIFE-DEMO": { username: "Admin", role: "LIFETIME", expire: "-", created: new Date().toISOString().split('T')[0] }
+            };
+        }
+        renderAll();
+        return;
+    }
+    
+    try {
+        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        if (res.ok) {
+            const gist = await res.json();
+            const content = gist.files['starsix_keys.json']?.content;
+            if (content) {
+                keysData = JSON.parse(content);
+                localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
+                renderAll();
+                return;
+            }
+        }
+    } catch(e) {
+        console.error('Load keys from Gist error:', e);
+    }
+    
+    const saved = localStorage.getItem('starsix_keys_data');
+    keysData = saved ? JSON.parse(saved) : {};
+    renderAll();
+}
+
+async function saveKeysToGist() {
+    localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
+    if (!GIST_ID || !GITHUB_TOKEN) return;
+    
+    try {
+        const getRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
+        let currentFiles = {};
+        if (getRes.ok) {
+            const gist = await getRes.json();
+            currentFiles = gist.files || {};
+        }
+        currentFiles['starsix_keys.json'] = { content: JSON.stringify(keysData, null, 2) };
+        await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            method: 'PATCH',
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ files: currentFiles })
+        });
+        toast('Keys synced ke Gist!', 'ok');
+    } catch(e) {
+        console.error('Save keys to Gist error:', e);
+    }
+}
+
+// ============================================================
+// SUPABASE FUNCTIONS (SCRIPTS)
 // ============================================================
 function initSupabase() {
     const url = localStorage.getItem('starsix_supabase_url');
     const key = localStorage.getItem('starsix_supabase_key');
     
-    if (url && key && url !== 'null' && key !== 'null') {
+    if (url && key && url !== 'null' && key !== 'null' && url !== '' && key !== '') {
         try {
-            supabaseClient = window.supabase.createClient(url, key);
-            loadAllData();
+            let cleanUrl = url;
+            if (!cleanUrl.startsWith('https://')) {
+                cleanUrl = 'https://' + cleanUrl;
+            }
+            
+            supabaseClient = window.supabase.createClient(cleanUrl, key, {
+                auth: { persistSession: false, autoRefreshToken: false },
+                global: { headers: { 'apikey': key, 'Authorization': `Bearer ${key}` } }
+            });
+            
+            console.log('Supabase client created');
+            testConnection();
             return true;
         } catch(e) {
             console.error('Supabase init error:', e);
+            toast('Gagal connect: ' + e.message, 'err');
             return false;
         }
     }
     return false;
 }
 
-async function saveSupabaseSettings() {
-    const url = document.getElementById('settingSupabaseUrl').value.trim();
-    const key = document.getElementById('settingSupabaseKey').value.trim();
-    
-    if (!url || !key) {
-        toast('Masukkan URL dan Key Supabase!', 'err');
-        return;
-    }
-    
-    localStorage.setItem('starsix_supabase_url', url);
-    localStorage.setItem('starsix_supabase_key', key);
-    
-    if (initSupabase()) {
-        toast('Connected ke Supabase!', 'ok');
-    } else {
-        toast('Gagal connect ke Supabase!', 'err');
-    }
-}
-
-// ============================================================
-// DATABASE OPERATIONS
-// ============================================================
-async function loadAllData() {
+async function testConnection() {
     if (!supabaseClient) return;
-    
-    await Promise.all([
-        loadKeysFromDB(),
-        loadScriptsFromDB(),
-        loadActivityFromDB()
-    ]);
-    
-    renderAll();
-}
-
-async function loadKeysFromDB() {
     try {
-        const { data, error } = await supabaseClient
-            .from('keys')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
-        if (error) throw error;
-        keysData = data || [];
-        localStorage.setItem('starsix_keys_cache', JSON.stringify(keysData));
+        const { error } = await supabaseClient.from('scripts').select('count', { count: 'exact', head: true });
+        if (error) {
+            console.error('Test connection error:', error);
+            return false;
+        }
+        console.log('Connection successful');
+        toast('Connected ke Supabase!', 'ok');
+        return true;
     } catch(e) {
-        console.error('Load keys error:', e);
-        const cached = localStorage.getItem('starsix_keys_cache');
-        keysData = cached ? JSON.parse(cached) : [];
+        console.error('Test connection exception:', e);
+        return false;
     }
 }
 
 async function loadScriptsFromDB() {
+    if (!supabaseClient) {
+        const cached = localStorage.getItem('starsix_scripts_cache');
+        scriptsData = cached ? JSON.parse(cached) : [];
+        return;
+    }
+    
     try {
-        const { data, error } = await supabaseClient
-            .from('scripts')
-            .select('*')
-            .order('created_at', { ascending: false });
-        
+        const { data, error } = await supabaseClient.from('scripts').select('*').order('created_at', { ascending: false });
         if (error) throw error;
         scriptsData = data || [];
         localStorage.setItem('starsix_scripts_cache', JSON.stringify(scriptsData));
@@ -684,111 +784,17 @@ async function loadScriptsFromDB() {
     }
 }
 
-async function loadActivityFromDB() {
-    try {
-        const { data, error } = await supabaseClient
-            .from('activity_logs')
-            .select('*')
-            .order('created_at', { ascending: false })
-            .limit(50);
-        
-        if (error) throw error;
-        activityData = data || [];
-    } catch(e) {
-        console.error('Load activity error:', e);
-        activityData = [];
-    }
-}
-
-async function addKeyToDB(keyData) {
-    if (!supabaseClient) return false;
-    try {
-        const { error } = await supabaseClient
-            .from('keys')
-            .insert([keyData]);
-        
-        if (error) throw error;
-        await loadKeysFromDB();
-        await addActivityToDB('Key Generated', `${keyData.key_code} (${keyData.role})`);
-        return true;
-    } catch(e) {
-        console.error('Add key error:', e);
-        toast('Gagal simpan key!', 'err');
-        return false;
-    }
-}
-
-async function updateKeyInDB(keyCode, updates) {
-    if (!supabaseClient) return false;
-    try {
-        const { error } = await supabaseClient
-            .from('keys')
-            .update(updates)
-            .eq('key_code', keyCode);
-        
-        if (error) throw error;
-        await loadKeysFromDB();
-        await addActivityToDB('Key Updated', keyCode);
-        return true;
-    } catch(e) {
-        console.error('Update key error:', e);
-        toast('Gagal update key!', 'err');
-        return false;
-    }
-}
-
-async function deleteKeyFromDB(keyCode) {
-    if (!supabaseClient) return false;
-    try {
-        const { error } = await supabaseClient
-            .from('keys')
-            .delete()
-            .eq('key_code', keyCode);
-        
-        if (error) throw error;
-        await loadKeysFromDB();
-        await addActivityToDB('Key Deleted', keyCode);
-        return true;
-    } catch(e) {
-        console.error('Delete key error:', e);
-        toast('Gagal hapus key!', 'err');
-        return false;
-    }
-}
-
 async function addScriptToDB(scriptData) {
     if (!supabaseClient) return false;
     try {
-        const { error } = await supabaseClient
-            .from('scripts')
-            .insert([scriptData]);
-        
+        const { error } = await supabaseClient.from('scripts').insert([scriptData]);
         if (error) throw error;
         await loadScriptsFromDB();
-        await addActivityToDB('Script Created', scriptData.name);
+        addActivity('Script Created', scriptData.name);
         return true;
     } catch(e) {
         console.error('Add script error:', e);
-        toast('Gagal simpan script!', 'err');
-        return false;
-    }
-}
-
-async function updateScriptInDB(scriptId, updates) {
-    if (!supabaseClient) return false;
-    try {
-        const { error } = await supabaseClient
-            .from('scripts')
-            .update(updates)
-            .eq('id', scriptId);
-        
-        if (error) throw error;
-        await loadScriptsFromDB();
-        await addActivityToDB('Script Updated', updates.name);
-        return true;
-    } catch(e) {
-        console.error('Update script error:', e);
-        toast('Gagal update script!', 'err');
+        toast('Gagal simpan: ' + e.message, 'err');
         return false;
     }
 }
@@ -796,33 +802,52 @@ async function updateScriptInDB(scriptId, updates) {
 async function deleteScriptFromDB(scriptId) {
     if (!supabaseClient) return false;
     try {
-        const { error } = await supabaseClient
-            .from('scripts')
-            .delete()
-            .eq('id', scriptId);
-        
+        const { error } = await supabaseClient.from('scripts').delete().eq('id', scriptId);
         if (error) throw error;
         await loadScriptsFromDB();
-        await addActivityToDB('Script Deleted', scriptId);
+        addActivity('Script Deleted', scriptId);
         return true;
     } catch(e) {
         console.error('Delete script error:', e);
-        toast('Gagal hapus script!', 'err');
+        toast('Gagal hapus: ' + e.message, 'err');
         return false;
     }
 }
 
-async function addActivityToDB(action, details) {
-    if (!supabaseClient) return;
-    try {
-        await supabaseClient
-            .from('activity_logs')
-            .insert([{ action, details }]);
-        await loadActivityFromDB();
-        renderActivityLog();
-    } catch(e) {
-        console.error('Add activity error:', e);
+async function loadActivityFromDB() {
+    if (!supabaseClient) {
+        const cached = localStorage.getItem('starsix_activity_cache');
+        activityData = cached ? JSON.parse(cached) : [];
+        if (activityData.length === 0) {
+            activityData = [{ action: 'System Ready', details: 'StarSix Community Online', time: new Date().toISOString() }];
+        }
+        return;
     }
+    
+    try {
+        const { data, error } = await supabaseClient.from('activity_logs').select('*').order('created_at', { ascending: false }).limit(50);
+        if (error) throw error;
+        activityData = data || [];
+        localStorage.setItem('starsix_activity_cache', JSON.stringify(activityData));
+    } catch(e) {
+        console.error('Load activity error:', e);
+        const cached = localStorage.getItem('starsix_activity_cache');
+        activityData = cached ? JSON.parse(cached) : [];
+    }
+}
+
+async function addActivity(action, details) {
+    const newActivity = { action, details, time: new Date().toISOString(), created_at: new Date().toISOString() };
+    activityData.unshift(newActivity);
+    if (activityData.length > 50) activityData = activityData.slice(0, 50);
+    localStorage.setItem('starsix_activity_cache', JSON.stringify(activityData));
+    
+    if (supabaseClient) {
+        try {
+            await supabaseClient.from('activity_logs').insert([{ action, details }]);
+        } catch(e) { console.error('Save activity to DB error:', e); }
+    }
+    renderActivityLog();
 }
 
 // ============================================================
@@ -870,29 +895,22 @@ function toast(msg, type = 'ok') {
     setTimeout(() => el?.remove(), 2800);
 }
 
-// Get script URL (via Supabase Storage atau API)
-function getScriptUrl(scriptId) {
-    const supabaseUrl = localStorage.getItem('starsix_supabase_url');
-    if (supabaseUrl) {
-        return `${supabaseUrl}/rest/v1/rpc/get_script?id=${scriptId}`;
-    }
-    return `#`;
-}
-
 function getLoadString(scriptId) {
-    // Gunakan raw endpoint dari API Vercel nanti
-    return `loadstring(game:HttpGet("https://starsix-api.vercel.app/api/script/${scriptId}"))()`;
+    const supabaseUrl = localStorage.getItem('starsix_supabase_url');
+    if (supabaseUrl && supabaseClient) {
+        return `loadstring(game:HttpGet("${supabaseUrl}/rest/v1/rpc/get_script_content?p_id=${scriptId}", { headers = { apikey = "${localStorage.getItem('starsix_supabase_key')}" } }))()`;
+    }
+    return `-- Script ${scriptId} - Configure Supabase first`;
 }
 
 // ============================================================
 // RENDER FUNCTIONS
 // ============================================================
 function renderStats() {
-    const total = keysData.length;
-    const active = keysData.filter(k => !isExpired(k.expire_date)).length;
-    const trial = keysData.filter(k => k.role === 'TRIAL').length;
-    const vip = keysData.filter(k => k.role === 'VIP' || k.role === 'LIFETIME').length;
-    
+    const total = Object.keys(keysData).length;
+    const active = Object.entries(keysData).filter(([code, data]) => !isExpired(data.expire)).length;
+    const trial = Object.values(keysData).filter(d => d.role === 'TRIAL').length;
+    const vip = Object.values(keysData).filter(d => d.role === 'VIP' || d.role === 'LIFETIME').length;
     document.getElementById('statTotalKeys').textContent = total;
     document.getElementById('statActiveKeys').textContent = active;
     document.getElementById('statTrialKeys').textContent = trial;
@@ -902,12 +920,10 @@ function renderStats() {
 function renderActivityLog() {
     const el = document.getElementById('activityLog');
     document.getElementById('activityCount').textContent = activityData.length + ' entri';
-    
     if (!activityData.length) {
         el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:20px;">Tiada aktiviti</div>`;
         return;
     }
-    
     el.innerHTML = activityData.slice(0, 15).map(a => `
         <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
             <div style="width:5px;height:5px;background:var(--purple);border-radius:50%;"></div>
@@ -915,42 +931,40 @@ function renderActivityLog() {
                 <span style="font-size:10px;font-weight:600;">${escapeHtml(a.action)}</span>
                 <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${escapeHtml(a.details || '')}</span>
             </div>
-            <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.created_at).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
+            <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.time || a.created_at).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
         </div>
     `).join('');
 }
 
 function renderKeys() {
     const el = document.getElementById('keysList');
-    document.getElementById('keysCount').textContent = keysData.length + ' keys';
-    
-    if (!keysData.length) {
+    document.getElementById('keysCount').textContent = Object.keys(keysData).length + ' keys';
+    if (Object.keys(keysData).length === 0) {
         el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada keys</div>`;
         return;
     }
-    
-    el.innerHTML = keysData.map(k => {
-        const status = !isExpired(k.expire_date) ? 'active' : 'expired';
-        let badgeClass = k.role === 'TRIAL' ? 'badge-trial' : (k.role === 'VIP' ? 'badge-vip' : 'badge-lifetime');
+    el.innerHTML = Object.entries(keysData).map(([code, data]) => {
+        const status = !isExpired(data.expire) ? 'active' : 'expired';
+        let badgeClass = data.role === 'TRIAL' ? 'badge-trial' : (data.role === 'VIP' ? 'badge-vip' : 'badge-lifetime');
         return `
         <div class="key-item">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                 <div>
-                    <div class="mono" style="font-size:11px;font-weight:700;">${escapeHtml(k.key_code)}</div>
+                    <div class="mono" style="font-size:11px;font-weight:700;">${escapeHtml(code)}</div>
                     <div style="margin-top:4px;display:flex;gap:5px;">
-                        <span class="badge ${badgeClass}">${k.role}</span>
+                        <span class="badge ${badgeClass}">${data.role}</span>
                         <span class="badge ${status === 'active' ? 'badge-active' : 'badge-expired'}">${status === 'active' ? 'Aktif' : 'Expired'}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;">
-                    <button onclick="openEditKeyModal('${k.key_code}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button>
-                    <button onclick="confirmDelete('key', '${k.key_code}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
+                    <button onclick="openEditKeyModal('${code}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button>
+                    <button onclick="confirmDelete('key', '${code}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
             <div style="display:flex;gap:12px;">
-                <div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div><div class="mono" style="font-size:9px;">${k.expire_date === '-' || k.expire_date === 'Lifetime' ? 'Lifetime' : k.expire_date}</div></div>
-                <div><div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div><div class="mono" style="font-size:9px;color:var(--purple);">${escapeHtml(k.username) || 'Sesiapa'}</div></div>
-                <div><div class="mono" style="font-size:8px;color:var(--muted);">DIBUAT</div><div class="mono" style="font-size:9px;">${new Date(k.created_at).toLocaleDateString()}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div><div class="mono" style="font-size:9px;">${data.expire === '-' ? 'Lifetime' : data.expire}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div><div class="mono" style="font-size:9px;color:var(--purple);">${escapeHtml(data.username) || 'Sesiapa'}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">DIBUAT</div><div class="mono" style="font-size:9px;">${data.created || '-'}</div></div>
             </div>
         </div>`;
     }).join('');
@@ -959,12 +973,10 @@ function renderKeys() {
 function renderScripts() {
     const el = document.getElementById('scriptsList');
     document.getElementById('scriptsCount').textContent = scriptsData.length + ' scripts';
-    
     if (!scriptsData.length) {
         el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada script</div>`;
         return;
     }
-    
     el.innerHTML = scriptsData.map(s => {
         const loadstringCmd = getLoadString(s.id);
         return `
@@ -999,9 +1011,9 @@ function viewScript(scriptId) {
 function updateLineChart() {
     if (!lineChart) return;
     const monthlyData = [0, 0, 0, 0, 0, 0];
-    keysData.forEach(key => {
-        if (key.created_at) {
-            const month = new Date(key.created_at).getMonth();
+    Object.values(keysData).forEach(key => {
+        if (key.created) {
+            const month = new Date(key.created).getMonth();
             if (month >= 0 && month < 6) monthlyData[month]++;
         }
     });
@@ -1020,10 +1032,23 @@ function renderAll() {
 // ============================================================
 // KEY CRUD
 // ============================================================
+function toggleKeyFields() {
+    const role = document.getElementById('addKeyRole').value;
+    document.getElementById('usernameField').style.display = role === 'TRIAL' ? 'none' : '';
+    document.getElementById('expireField').style.display = role === 'LIFETIME' ? 'none' : '';
+}
+
+function toggleEditKeyFields() {
+    const role = document.getElementById('editKeyRole').value;
+    document.getElementById('editUsernameField').style.display = role === 'TRIAL' ? 'none' : '';
+    document.getElementById('editExpireField').style.display = role === 'LIFETIME' ? 'none' : '';
+}
+
 function openAddKeyModal() {
     document.getElementById('addKeyRole').value = 'TRIAL';
     document.getElementById('addKeyUsername').value = '';
     document.getElementById('addKeyExpire').value = '';
+    toggleKeyFields();
     openModal('modalAddKey');
 }
 
@@ -1039,56 +1064,43 @@ async function submitAddKey() {
     }
     
     const keyCode = generateKeyCode(role);
-    const newKey = {
-        key_code: keyCode,
-        username: role === 'TRIAL' ? '' : username,
-        role: role,
-        expire_date: role === 'LIFETIME' ? 'Lifetime' : expire,
-        created_at: new Date().toISOString()
-    };
-    
-    await addKeyToDB(newKey);
+    keysData[keyCode] = { username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire, created: new Date().toISOString().split('T')[0] };
+    await saveKeysToGist();
+    addActivity('Key Generated', `${keyCode} (${role})`);
     renderAll();
     closeModal('modalAddKey');
     toast(`Key: ${keyCode}`, 'ok');
 }
 
-function openEditKeyModal(keyCode) {
-    const key = keysData.find(k => k.key_code === keyCode);
-    if (!key) return;
-    
-    // Bisa implement edit modal
-    toast('Edit feature coming soon', 'info');
+function openEditKeyModal(code) {
+    const data = keysData[code];
+    if (!data) return;
+    document.getElementById('editKeyCode').value = code;
+    document.getElementById('editKeyRole').value = data.role;
+    document.getElementById('editKeyUsername').value = data.username || '';
+    document.getElementById('editKeyExpire').value = data.expire !== '-' ? data.expire : '';
+    toggleEditKeyFields();
+    openModal('modalEditKey');
 }
 
-async function confirmDelete(type, id) {
-    const msg = document.getElementById('deleteMessage');
+async function submitEditKey() {
+    const code = document.getElementById('editKeyCode').value;
+    const role = document.getElementById('editKeyRole').value;
+    const username = document.getElementById('editKeyUsername').value.trim();
+    let expire = document.getElementById('editKeyExpire').value;
     
-    if (type === 'key') {
-        msg.innerHTML = `Hapus key: <strong>${id}</strong>?`;
-        pendingDeleteCallback = async () => {
-            await deleteKeyFromDB(id);
-            renderAll();
-            closeModal('modalDeleteConfirm');
-            toast('Key dipadam!', 'ok');
-        };
-    } else if (type === 'script') {
-        const script = scriptsData.find(s => s.id === id);
-        msg.innerHTML = `Hapus script: <strong>${script?.name || id}</strong>?`;
-        pendingDeleteCallback = async () => {
-            await deleteScriptFromDB(id);
-            renderAll();
-            closeModal('modalDeleteConfirm');
-            toast('Script dipadam!', 'ok');
-        };
+    if (role !== 'TRIAL' && !username && keysData[code]?.username !== '') { toast('Masukkan username!', 'err'); return; }
+    if (role !== 'LIFETIME' && !expire && keysData[code]?.expire !== '-') {
+        const d = new Date(); d.setDate(d.getDate() + 30);
+        expire = d.toISOString().split('T')[0];
     }
     
-    const confirmBtn = document.getElementById('deleteConfirmBtn');
-    const newBtn = confirmBtn.cloneNode(true);
-    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
-    newBtn.id = 'deleteConfirmBtn';
-    newBtn.onclick = () => { if (pendingDeleteCallback) pendingDeleteCallback(); };
-    openModal('modalDeleteConfirm');
+    keysData[code] = { ...keysData[code], username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire };
+    await saveKeysToGist();
+    addActivity('Key Updated', `${code} → ${role}`);
+    renderAll();
+    closeModal('modalEditKey');
+    toast('Key dikemaskini!', 'ok');
 }
 
 // ============================================================
@@ -1123,14 +1135,90 @@ async function submitAddScript() {
 function openEditScriptModal(id) {
     const script = scriptsData.find(s => s.id === id);
     if (!script) return;
-    toast('Edit feature coming soon', 'info');
+    toast('Edit feature via database', 'info');
+}
+
+// ============================================================
+// DELETE CONFIRMATION
+// ============================================================
+function confirmDelete(type, id) {
+    const msg = document.getElementById('deleteMessage');
+    if (type === 'key') {
+        msg.innerHTML = `Hapus key: <strong>${id}</strong>?`;
+        pendingDeleteCallback = async () => {
+            delete keysData[id];
+            await saveKeysToGist();
+            addActivity('Key Deleted', id);
+            renderAll();
+            closeModal('modalDeleteConfirm');
+            toast('Key dipadam!', 'ok');
+        };
+    } else if (type === 'script') {
+        const script = scriptsData.find(s => s.id === id);
+        msg.innerHTML = `Hapus script: <strong>${script?.name || id}</strong>?`;
+        pendingDeleteCallback = async () => {
+            await deleteScriptFromDB(id);
+            renderAll();
+            closeModal('modalDeleteConfirm');
+            toast('Script dipadam!', 'ok');
+        };
+    }
+    
+    const confirmBtn = document.getElementById('deleteConfirmBtn');
+    const newBtn = confirmBtn.cloneNode(true);
+    confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
+    newBtn.id = 'deleteConfirmBtn';
+    newBtn.onclick = () => { if (pendingDeleteCallback) pendingDeleteCallback(); };
+    openModal('modalDeleteConfirm');
 }
 
 // ============================================================
 // SETTINGS
 // ============================================================
+function saveGistSettings() {
+    const gistId = document.getElementById('settingGistId').value.trim();
+    const token = document.getElementById('settingGithubToken').value.trim();
+    
+    if (gistId) localStorage.setItem('starsix_gist_id', gistId);
+    if (token) localStorage.setItem('starsix_github_token', token);
+    
+    GIST_ID = gistId;
+    GITHUB_TOKEN = token;
+    
+    toast('Gist settings disimpan!', 'ok');
+    loadKeysFromGist();
+}
+
+async function saveSupabaseSettings() {
+    const url = document.getElementById('settingSupabaseUrl').value.trim();
+    const key = document.getElementById('settingSupabaseKey').value.trim();
+    
+    if (!url || !key) {
+        toast('Masukkan URL dan Key Supabase!', 'err');
+        return;
+    }
+    
+    let cleanUrl = url;
+    if (!cleanUrl.startsWith('https://')) {
+        cleanUrl = 'https://' + cleanUrl;
+    }
+    if (cleanUrl.endsWith('/')) {
+        cleanUrl = cleanUrl.slice(0, -1);
+    }
+    
+    localStorage.setItem('starsix_supabase_url', cleanUrl);
+    localStorage.setItem('starsix_supabase_key', key);
+    
+    const success = initSupabase();
+    if (success) {
+        await loadScriptsFromDB();
+        await loadActivityFromDB();
+        renderAll();
+    }
+}
+
 function exportData() {
-    const data = { keys: keysData, scripts: scriptsData, activity: activityData };
+    const data = { keys: keysData, scripts: scriptsData, activityLog: activityData };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1148,17 +1236,21 @@ function importData(input) {
     reader.onload = async function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            if (data.keys && supabaseClient) {
-                for (const key of data.keys) {
-                    await supabaseClient.from('keys').upsert([key]);
-                }
+            if (data.keys) {
+                keysData = data.keys;
+                await saveKeysToGist();
             }
             if (data.scripts && supabaseClient) {
                 for (const script of data.scripts) {
                     await supabaseClient.from('scripts').upsert([script]);
                 }
+                await loadScriptsFromDB();
             }
-            await loadAllData();
+            if (data.activityLog) {
+                activityData = data.activityLog;
+                localStorage.setItem('starsix_activity_cache', JSON.stringify(activityData));
+            }
+            renderAll();
             toast('Data diimport!', 'ok');
         } catch(err) { toast('File tidak valid!', 'err'); }
     };
@@ -1168,7 +1260,11 @@ function importData(input) {
 
 async function refreshAll() {
     toast('Refresh...', 'info');
-    await loadAllData();
+    await loadKeysFromGist();
+    if (supabaseClient) {
+        await loadScriptsFromDB();
+        await loadActivityFromDB();
+    }
     toast('Data dikemaskini!', 'ok');
 }
 
@@ -1192,10 +1288,15 @@ function showView(name) {
 }
 
 function loadSettings() {
-    const url = localStorage.getItem('starsix_supabase_url');
-    const key = localStorage.getItem('starsix_supabase_key');
-    if (url) document.getElementById('settingSupabaseUrl').value = url;
-    if (key) document.getElementById('settingSupabaseKey').value = key;
+    const gistId = localStorage.getItem('starsix_gist_id');
+    const githubToken = localStorage.getItem('starsix_github_token');
+    const supabaseUrl = localStorage.getItem('starsix_supabase_url');
+    const supabaseKey = localStorage.getItem('starsix_supabase_key');
+    
+    if (gistId) document.getElementById('settingGistId').value = gistId;
+    if (githubToken) document.getElementById('settingGithubToken').value = githubToken;
+    if (supabaseUrl) document.getElementById('settingSupabaseUrl').value = supabaseUrl;
+    if (supabaseKey) document.getElementById('settingSupabaseKey').value = supabaseKey;
 }
 
 // ============================================================
@@ -1203,8 +1304,19 @@ function loadSettings() {
 // ============================================================
 initLineChart();
 loadSettings();
+loadKeysFromGist();
 initSupabase();
+Promise.all([loadScriptsFromDB(), loadActivityFromDB()]).then(() => renderAll());
 showView('dashboard');
+
+// Auto refresh setiap 30 detik
+setInterval(() => {
+    loadKeysFromGist();
+    if (supabaseClient) {
+        loadScriptsFromDB();
+        loadActivityFromDB();
+    }
+}, 30000);
 </script>
 </body>
 </html>
