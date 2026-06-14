@@ -157,6 +157,7 @@
         .badge-lifetime { background: rgba(139,92,246,0.1); color: var(--purple); border: 1px solid var(--border); }
         .badge-online { background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); }
         .badge-offline { background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); }
+        .badge-syncing { background: rgba(245,158,11,0.15); color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
 
         .mono { font-family: 'Space Mono', monospace; }
 
@@ -330,6 +331,14 @@
             border-radius: 6px;
             letter-spacing: 0.5px;
         }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        .fa-spin-slow {
+            animation: spin 1.5s linear infinite;
+        }
     </style>
 </head>
 <body>
@@ -437,21 +446,38 @@
     <div id="settingsView" class="view hidden">
         <div style="font-size:16px;font-weight:700;margin-bottom:14px;">Tetapan</div>
         
-        <!-- Status Koneksi -->
+        <!-- Status Koneksi & Auto Sync -->
         <div class="card p-4" style="margin-bottom:12px;">
-            <div class="section-label" style="margin-bottom:12px;">// STATUS KONEKSI</div>
-            <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div class="section-label" style="margin-bottom:12px;">// STATUS KONEKSI & AUTO SYNC</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
                 <div>
-                    <div class="mono" style="font-size:11px;color:var(--text);">Github Gist Sync</div>
+                    <div class="mono" style="font-size:11px;color:var(--text);">GitHub Gist Sync</div>
                     <div class="mono" style="font-size:9px;color:var(--muted);" id="connectionStatusText">Memeriksa...</div>
                 </div>
                 <div>
                     <span id="connectionBadge" class="badge badge-offline"><i class="fas fa-plug"></i> OFFLINE</span>
                 </div>
             </div>
-            <button onclick="checkConnection()" class="btn-ghost" style="margin-top:12px;width:100%;padding:6px;">
-                <i class="fas fa-sync-alt"></i> Uji Koneksi
-            </button>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding:8px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);">
+                <div>
+                    <div class="mono" style="font-size:11px;color:var(--text);">Auto Sync Keys</div>
+                    <div class="mono" style="font-size:8px;color:var(--muted);" id="autoSyncStatus">Auto-sync aktif: Setiap perubahan key akan sync ke Gist</div>
+                </div>
+                <div>
+                    <span id="lastSyncBadge" class="badge" style="background:rgba(139,92,246,0.1);"><i class="fas fa-clock"></i> <span id="lastSyncTime">Belum sync</span></span>
+                </div>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button onclick="manualSyncToGist()" class="btn-primary" style="flex:1;padding:8px;">
+                    <i class="fas fa-upload"></i> Sync Now
+                </button>
+                <button onclick="pullFromGist()" class="btn-ghost" style="flex:1;padding:8px;">
+                    <i class="fas fa-download"></i> Pull Data
+                </button>
+                <button onclick="checkConnection()" class="btn-ghost" style="padding:8px;">
+                    <i class="fas fa-sync-alt"></i>
+                </button>
+            </div>
         </div>
 
         <div class="card p-4" style="margin-bottom:12px;">
@@ -464,7 +490,11 @@
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
                 <input type="password" id="settingGithubToken" class="inp" placeholder="github_pat_xxx">
             </div>
-            <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Sync</button>
+            <div style="margin-bottom:10px;">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">FILENAME (optional)</label>
+                <input type="text" id="settingFilename" class="inp" placeholder="starsix_keys.json" value="starsix_keys.json">
+            </div>
+            <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan Setting</button>
         </div>
 
         <div class="card p-4" style="margin-bottom:12px;">
@@ -478,7 +508,7 @@
             <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(this)">
         </div>
 
-        <!-- Delete Log Button Baru -->
+        <!-- Delete Log Button -->
         <div class="card p-4" style="border-color: rgba(239,68,68,0.3);">
             <div class="section-label" style="margin-bottom:12px;">// MAINTENANCE LOG</div>
             <button onclick="confirmDeleteAllLogs()" class="btn-danger" style="width:100%;padding:10px;">
@@ -575,13 +605,237 @@
 
 <script>
 // ============================================================
-// STAR SIX COMMUNITY DASHBOARD
+// STAR SIX COMMUNITY DASHBOARD - WITH AUTO SYNC KEYS ONLY
 // ============================================================
 
 let keysData = {};
 let activityData = [];
 let lineChart;
 let pendingDeleteCallback = null;
+let isSyncing = false;
+
+// ==================== GIST SYNC FUNCTIONS ====================
+
+function getGistConfig() {
+    return {
+        gistId: localStorage.getItem('starsix_gist_id') || '',
+        token: localStorage.getItem('starsix_github_token') || '',
+        filename: localStorage.getItem('starsix_filename') || 'starsix_keys.json'
+    };
+}
+
+function updateLastSyncDisplay() {
+    const lastSync = localStorage.getItem('starsix_last_sync');
+    const lastSyncSpan = document.getElementById('lastSyncTime');
+    if (lastSyncSpan) {
+        if (lastSync) {
+            const date = new Date(lastSync);
+            lastSyncSpan.textContent = date.toLocaleString('ms-MY');
+        } else {
+            lastSyncSpan.textContent = 'Belum sync';
+        }
+    }
+}
+
+async function syncToGist(showToastMsg = false) {
+    const config = getGistConfig();
+    if (!config.gistId) {
+        if (showToastMsg) toast('Gist ID tidak diisi!', 'err');
+        return false;
+    }
+    if (!config.token) {
+        if (showToastMsg) toast('GitHub Token tidak diisi!', 'err');
+        return false;
+    }
+    
+    if (isSyncing) {
+        if (showToastMsg) toast('Sync sedang berjalan...', 'info');
+        return false;
+    }
+    
+    isSyncing = true;
+    const badgeSpan = document.getElementById('connectionBadge');
+    const originalHTML = badgeSpan?.innerHTML;
+    if (badgeSpan) {
+        badgeSpan.innerHTML = '<i class="fas fa-spinner fa-spin-slow"></i> SYNCING';
+        badgeSpan.className = 'badge badge-syncing';
+    }
+    
+    try {
+        // Data yang disync hanya KEYS, bukan activity log
+        const syncData = { keys: keysData, lastUpdated: new Date().toISOString() };
+        const content = JSON.stringify(syncData, null, 2);
+        
+        // Get current gist to get the file's sha
+        const getResponse = await fetch(`https://api.github.com/gists/${config.gistId}`, {
+            headers: { 'Authorization': `token ${config.token}` }
+        });
+        
+        if (!getResponse.ok) throw new Error(`Gist not found: ${getResponse.status}`);
+        
+        const gistData = await getResponse.json();
+        const files = {};
+        const currentFile = gistData.files[config.filename];
+        
+        files[config.filename] = {
+            content: content
+        };
+        if (currentFile && currentFile.sha) {
+            files[config.filename].sha = currentFile.sha;
+        }
+        
+        // Update gist
+        const patchResponse = await fetch(`https://api.github.com/gists/${config.gistId}`, {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `token ${config.token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ files: files })
+        });
+        
+        if (!patchResponse.ok) throw new Error(`Update failed: ${patchResponse.status}`);
+        
+        localStorage.setItem('starsix_last_sync', new Date().toISOString());
+        updateLastSyncDisplay();
+        if (showToastMsg) toast('Sync berjaya ke Gist!', 'ok');
+        addActivity('Auto Sync', `Keys data synced to Gist (${Object.keys(keysData).length} keys)`);
+        return true;
+        
+    } catch (err) {
+        console.error('Sync error:', err);
+        if (showToastMsg) toast('Sync gagal: ' + err.message, 'err');
+        return false;
+    } finally {
+        isSyncing = false;
+        updateConnectionUI(await checkConnectionStatus());
+    }
+}
+
+async function pullFromGist() {
+    const config = getGistConfig();
+    if (!config.gistId) {
+        toast('Gist ID tidak diisi!', 'err');
+        return;
+    }
+    if (!config.token) {
+        toast('GitHub Token tidak diisi!', 'err');
+        return;
+    }
+    
+    const badgeSpan = document.getElementById('connectionBadge');
+    if (badgeSpan) {
+        badgeSpan.innerHTML = '<i class="fas fa-spinner fa-spin-slow"></i> PULLING';
+        badgeSpan.className = 'badge badge-syncing';
+    }
+    
+    try {
+        const response = await fetch(`https://api.github.com/gists/${config.gistId}`, {
+            headers: { 'Authorization': `token ${config.token}` }
+        });
+        
+        if (!response.ok) throw new Error(`Gist not found: ${response.status}`);
+        
+        const gistData = await response.json();
+        const fileContent = gistData.files[config.filename]?.content;
+        
+        if (!fileContent) {
+            toast('File tidak ditemui dalam Gist!', 'err');
+            return;
+        }
+        
+        const remoteData = JSON.parse(fileContent);
+        
+        if (remoteData.keys) {
+            keysData = remoteData.keys;
+            saveData();
+            renderAll();
+            localStorage.setItem('starsix_last_sync', new Date().toISOString());
+            updateLastSyncDisplay();
+            toast(`Pull berjaya! ${Object.keys(keysData).length} keys dimuat.`, 'ok');
+            addActivity('Pull from Gist', `Downloaded ${Object.keys(keysData).length} keys from Gist`);
+        } else {
+            toast('Format data tidak valid!', 'err');
+        }
+        
+    } catch (err) {
+        console.error('Pull error:', err);
+        toast('Pull gagal: ' + err.message, 'err');
+    } finally {
+        updateConnectionUI(await checkConnectionStatus());
+    }
+}
+
+async function checkConnectionStatus() {
+    const config = getGistConfig();
+    if (!config.gistId) return false;
+    
+    try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        const response = await fetch(`https://api.github.com/gists/${config.gistId}`, {
+            signal: controller.signal,
+            headers: config.token ? { 'Authorization': `token ${config.token}` } : {}
+        });
+        clearTimeout(timeoutId);
+        return response.ok;
+    } catch {
+        return false;
+    }
+}
+
+function updateConnectionUI(isOnline) {
+    const badgeSpan = document.getElementById('connectionBadge');
+    const statusText = document.getElementById('connectionStatusText');
+    if(isOnline) {
+        if (badgeSpan) {
+            badgeSpan.className = 'badge badge-online';
+            badgeSpan.innerHTML = '<i class="fas fa-wifi"></i> ONLINE';
+        }
+        if (statusText) {
+            statusText.textContent = 'Github Gist ready. Auto-sync akan jalan setiap perubahan key.';
+            statusText.style.color = '#10b981';
+        }
+    } else {
+        if (badgeSpan) {
+            badgeSpan.className = 'badge badge-offline';
+            badgeSpan.innerHTML = '<i class="fas fa-plug"></i> OFFLINE';
+        }
+        if (statusText) {
+            statusText.textContent = 'Tidak dapat sambung ke Github. Periksa token/Gist ID.';
+            statusText.style.color = '#ef4444';
+        }
+    }
+}
+
+async function checkConnection() {
+    toast('Menyemak sambungan...', 'info');
+    const isOnline = await checkConnectionStatus();
+    updateConnectionUI(isOnline);
+    if (isOnline) {
+        toast('Sambungan berjaya!', 'ok');
+    } else {
+        toast('Sambungan gagal!', 'err');
+    }
+}
+
+async function manualSyncToGist() {
+    await syncToGist(true);
+}
+
+// Auto-sync wrapper - dipanggil setiap kali keysData berubah
+async function autoSyncKeys() {
+    // Cek config dulu
+    const config = getGistConfig();
+    if (!config.gistId || !config.token) return;
+    
+    const isOnline = await checkConnectionStatus();
+    if (isOnline && !isSyncing) {
+        await syncToGist(false);
+    }
+}
+
+// ==================== CORE FUNCTIONS ====================
 
 function initLineChart() {
     const ctx = document.getElementById('salesChart')?.getContext('2d');
@@ -759,60 +1013,7 @@ function renderAll() {
     updateLineChart();
 }
 
-// Status Koneksi Function
-function updateConnectionUI(isOnline) {
-    const badgeSpan = document.getElementById('connectionBadge');
-    const statusText = document.getElementById('connectionStatusText');
-    if(isOnline) {
-        badgeSpan.className = 'badge badge-online';
-        badgeSpan.innerHTML = '<i class="fas fa-wifi"></i> ONLINE';
-        statusText.textContent = 'Github Gist sedia untuk sync.';
-        statusText.style.color = '#10b981';
-    } else {
-        badgeSpan.className = 'badge badge-offline';
-        badgeSpan.innerHTML = '<i class="fas fa-plug"></i> OFFLINE';
-        statusText.textContent = 'Tidak dapat sambung ke Github. Periksa token/Gist ID.';
-        statusText.style.color = '#ef4444';
-    }
-}
-
-async function checkConnection() {
-    const gistId = document.getElementById('settingGistId').value.trim() || localStorage.getItem('starsix_gist_id');
-    const token = document.getElementById('settingGithubToken').value.trim() || localStorage.getItem('starsix_github_token');
-    
-    if(!gistId) {
-        updateConnectionUI(false);
-        toast('Gist ID tidak diisi!', 'err');
-        return;
-    }
-    
-    updateConnectionUI(false);
-    toast('Menyemak sambungan...', 'info');
-    
-    try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 5000);
-        const response = await fetch(`https://api.github.com/gists/${gistId}`, {
-            signal: controller.signal,
-            headers: token ? { 'Authorization': `token ${token}` } : {}
-        });
-        clearTimeout(timeoutId);
-        
-        if(response.ok) {
-            updateConnectionUI(true);
-            toast('Sambungan berjaya!', 'ok');
-            addActivity('Connection Check', 'Github Gist reachable');
-        } else {
-            updateConnectionUI(false);
-            toast(`Gagal: ${response.status}`, 'err');
-        }
-    } catch(err) {
-        updateConnectionUI(false);
-        toast('Ralat sambungan: ' + (err.message || 'timeout'), 'err');
-    }
-}
-
-// Delete All Logs
+// Confirm delete all logs
 function confirmDeleteAllLogs() {
     const msg = document.getElementById('deleteMessage');
     msg.innerHTML = `Hapus <strong>SEMUA Log Aktiviti (${activityData.length} entri)</strong>? Tindakan ini tidak boleh dibatalkan.`;
@@ -873,6 +1074,8 @@ function submitAddKey() {
     renderAll();
     closeModal('modalAddKey');
     toast(`Key: ${keyCode}`, 'ok');
+    // AUTO SYNC setelah generate key
+    autoSyncKeys();
 }
 
 function openEditKeyModal(code) {
@@ -902,6 +1105,8 @@ function submitEditKey() {
     renderAll();
     closeModal('modalEditKey');
     toast('Key dikemaskini!', 'ok');
+    // AUTO SYNC setelah edit key
+    autoSyncKeys();
 }
 
 function confirmDelete(type, id) {
@@ -915,6 +1120,8 @@ function confirmDelete(type, id) {
             renderAll();
             closeModal('modalDeleteConfirm');
             toast('Key dipadam!', 'ok');
+            // AUTO SYNC setelah delete key
+            autoSyncKeys();
         };
     }
     const confirmBtn = document.getElementById('deleteConfirmBtn');
@@ -928,10 +1135,12 @@ function confirmDelete(type, id) {
 function saveGistSettings() {
     const gistId = document.getElementById('settingGistId').value.trim();
     const token = document.getElementById('settingGithubToken').value.trim();
+    const filename = document.getElementById('settingFilename').value.trim();
     if (gistId) localStorage.setItem('starsix_gist_id', gistId);
     if (token) localStorage.setItem('starsix_github_token', token);
+    if (filename) localStorage.setItem('starsix_filename', filename);
     toast('Gist settings disimpan!', 'ok');
-    checkConnection(); // Auto check after save
+    checkConnection();
 }
 
 function exportData() {
@@ -958,6 +1167,8 @@ function importData(input) {
             saveData();
             renderAll();
             toast('Data diimport!', 'ok');
+            // Auto sync after import
+            autoSyncKeys();
         } catch(err) { toast('File tidak valid!', 'err'); }
     };
     reader.readAsText(file);
@@ -983,14 +1194,30 @@ function showView(name) {
     document.getElementById(viewMap[name]).classList.remove('hidden');
     document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
     document.getElementById('nav-' + name)?.classList.add('active');
-    if(name === 'settings') checkConnection();
+    if(name === 'settings') {
+        checkConnection();
+        updateLastSyncDisplay();
+    }
+}
+
+// Load stored settings into form
+function loadSettingsToForm() {
+    const gistId = localStorage.getItem('starsix_gist_id');
+    const token = localStorage.getItem('starsix_github_token');
+    const filename = localStorage.getItem('starsix_filename');
+    if (gistId) document.getElementById('settingGistId').value = gistId;
+    if (token) document.getElementById('settingGithubToken').value = token;
+    if (filename) document.getElementById('settingFilename').value = filename;
+    else document.getElementById('settingFilename').value = 'starsix_keys.json';
 }
 
 initLineChart();
 loadData();
+loadSettingsToForm();
 showView('dashboard');
+updateLastSyncDisplay();
 
-// Fallback logo jika image dari Discord tidak bisa di-load
+// Fallback logo
 window.addEventListener('load', () => {
     const img = document.getElementById('logoImage');
     if(img.complete && img.naturalWidth === 0) {
