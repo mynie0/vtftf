@@ -1,7 +1,0 @@
-{
-  "version": 2,
-  "rewrites": [
-    { "source": "/raw/:id", "destination": "/api/raw" },
-    { "source": "/(.*)", "destination": "/index.html" }
-  ]
-}
