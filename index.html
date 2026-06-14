@@ -180,15 +180,6 @@
             font-size: 11px;
             cursor: pointer;
         }
-        .btn-success {
-            background: rgba(16,185,129,0.1);
-            color: var(--green);
-            border: 1px solid rgba(16,185,129,0.2);
-            border-radius: 10px;
-            font-family: 'Space Mono', monospace;
-            font-size: 11px;
-            cursor: pointer;
-        }
         .btn-copy {
             background: rgba(139,92,246,0.15);
             color: var(--purple);
@@ -214,7 +205,6 @@
             outline: none;
         }
         .inp:focus { border-color: rgba(139,92,246,0.5); }
-        textarea.inp { resize: vertical; min-height: 100px; }
 
         .toast {
             position: fixed;
@@ -286,7 +276,6 @@
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 8px;
-            position: relative;
         }
 
         .dot-live {
@@ -440,11 +429,11 @@
             <div class="section-label" style="margin-bottom:12px;">// GITHUB GIST CONFIG</div>
             <div style="margin-bottom:10px;">
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GIST ID</label>
-                <input type="text" id="settingGistId" class="inp" placeholder="e42299173afabebb5b84d90aee00769bdb83fccf">
+                <input type="text" id="settingGistId" class="inp">
             </div>
             <div style="margin-bottom:10px;">
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
-                <input type="password" id="settingGithubToken" class="inp" placeholder="github_pat_xxx">
+                <input type="password" id="settingGithubToken" class="inp">
             </div>
             <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Sync</button>
         </div>
@@ -549,20 +538,24 @@
 
 <script>
 // ============================================================
-// STAR SIX COMMUNITY DASHBOARD - LIVE GIST INTEGRATION
+// STAR SIX COMMUNITY DASHBOARD
 // GIST ID: 436734a001bef407c514615ebff6ede3
 // ============================================================
 
-const GIST_ID = '436734a001bef407c514615ebff6ede3';
-const GITHUB_TOKEN = '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';
+const CONFIG = {
+    GIST_ID: '436734a001bef407c514615ebff6ede3',
+    GITHUB_TOKEN: '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',
+    FILE_NAME: 'keys.json'  // nama file dalam gist anda
+};
+
 let keysData = {};
 let activityData = [];
 let lineChart;
 let pendingDeleteCallback = null;
 
-// Simpan settings ke localStorage (optional)
-localStorage.setItem('starsix_gist_id', GIST_ID);
-localStorage.setItem('starsix_github_token', GITHUB_TOKEN);
+// Save config to localStorage
+localStorage.setItem('starsix_gist_id', CONFIG.GIST_ID);
+localStorage.setItem('starsix_github_token', CONFIG.GITHUB_TOKEN);
 
 function initLineChart() {
     const ctx = document.getElementById('salesChart')?.getContext('2d');
@@ -609,74 +602,115 @@ function updateLineChart() {
 }
 
 // ============================================================
-// GITHUB GIST - LOAD KEYS (gist sedia ada)
+// GITHUB GIST - READ & WRITE
 // ============================================================
 async function loadKeysFromGist() {
     try {
-        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        console.log('Loading from Gist...');
+        const res = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+            headers: { 
+                'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
         });
+        
         if (res.ok) {
             const gist = await res.json();
-            // check for keys.json or starsix_keys.json
+            console.log('Gist loaded:', gist.id);
+            
+            // Check for keys.json file
             let content = null;
-            if (gist.files['keys.json']) content = gist.files['keys.json'].content;
-            else if (gist.files['starsix_keys.json']) content = gist.files['starsix_keys.json'].content;
+            if (gist.files && gist.files[CONFIG.FILE_NAME]) {
+                content = gist.files[CONFIG.FILE_NAME].content;
+                console.log('Found keys.json, content length:', content?.length);
+            } else if (gist.files && gist.files['starsix_keys.json']) {
+                content = gist.files['starsix_keys.json'].content;
+                console.log('Found starsix_keys.json');
+            }
             
             if (content) {
                 keysData = JSON.parse(content);
-                // Pastikan keysData adalah object
-                if (typeof keysData !== 'object' || Array.isArray(keysData)) keysData = {};
+                // Ensure it's an object
+                if (typeof keysData !== 'object' || Array.isArray(keysData)) {
+                    keysData = {};
+                }
+                console.log('Keys loaded:', Object.keys(keysData).length, 'keys');
                 localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
+                addActivity('Sync Success', `Loaded ${Object.keys(keysData).length} keys from Gist`);
                 renderAll();
-                addActivity('Sync Success', 'Keys loaded from Gist');
                 return;
             } else {
-                // Gist ada tapi tiada file keys, create empty
+                console.log('No keys.json file found in gist, creating empty data');
                 keysData = {};
                 await saveKeysToGist();
             }
         } else {
-            console.warn('Gist fetch failed, using local backup');
+            const errorText = await res.text();
+            console.error('Gist fetch failed:', res.status, errorText);
+            // Use local backup
             const saved = localStorage.getItem('starsix_keys_data');
             keysData = saved ? JSON.parse(saved) : {};
+            addActivity('Sync Warning', 'Using local backup (Gist unreachable)');
         }
     } catch(e) {
-        console.error(e);
+        console.error('Gist load error:', e);
         const saved = localStorage.getItem('starsix_keys_data');
         keysData = saved ? JSON.parse(saved) : {};
+        addActivity('Sync Error', e.message);
     }
     
     if (!keysData || Object.keys(keysData).length === 0) {
         keysData = {};
-        await saveKeysToGist();
     }
     renderAll();
 }
 
 async function saveKeysToGist() {
+    // Always save to localStorage first
     localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
+    
     try {
-        // Get current gist to preserve other files
-        const getRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        console.log('Saving to Gist...', Object.keys(keysData).length, 'keys');
+        
+        // First get current gist to preserve other files
+        const getRes = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+            headers: { 
+                'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+                'Accept': 'application/vnd.github.v3+json'
+            }
         });
+        
         let currentFiles = {};
         if (getRes.ok) {
             const gist = await getRes.json();
             currentFiles = gist.files || {};
         }
-        // Update atau create keys.json
-        currentFiles['keys.json'] = { content: JSON.stringify(keysData, null, 2) };
         
-        await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        // Update or create keys.json
+        currentFiles[CONFIG.FILE_NAME] = { 
+            content: JSON.stringify(keysData, null, 2) 
+        };
+        
+        const patchRes = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
             method: 'PATCH',
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
+            headers: { 
+                'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+                'Content-Type': 'application/json'
+            },
             body: JSON.stringify({ files: currentFiles })
         });
-        toast('Keys synced ke Gist!', 'ok');
+        
+        if (patchRes.ok) {
+            console.log('Gist saved successfully');
+            toast('Keys synced to Gist!', 'ok');
+        } else {
+            const errText = await patchRes.text();
+            console.error('Gist save failed:', patchRes.status, errText);
+            toast('Failed to sync to Gist!', 'err');
+        }
     } catch(e) {
-        console.warn('Gist sync error:', e);
+        console.error('Gist save error:', e);
+        toast('Error syncing to Gist!', 'err');
     }
 }
 
@@ -733,6 +767,16 @@ function toast(msg, type = 'ok') {
     setTimeout(() => el?.remove(), 2800);
 }
 
+function escapeHtml(str) { 
+    if (!str) return ''; 
+    return str.replace(/[&<>]/g, function(m) { 
+        if (m === '&') return '&amp;'; 
+        if (m === '<') return '&lt;'; 
+        if (m === '>') return '&gt;'; 
+        return m; 
+    }); 
+}
+
 // ============================================================
 // RENDER FUNCTIONS
 // ============================================================
@@ -766,13 +810,11 @@ function renderActivityLog() {
     `).join('');
 }
 
-function escapeHtml(str) { if (!str) return ''; return str.replace(/[&<>]/g, function(m) { if (m === '&') return '&amp;'; if (m === '<') return '&lt;'; if (m === '>') return '&gt;'; return m; }); }
-
 function renderKeys() {
     const el = document.getElementById('keysList');
     document.getElementById('keysCount').textContent = Object.keys(keysData).length + ' keys';
     if (Object.keys(keysData).length === 0) {
-        el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada keys</div>`;
+        el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada keys. Klik "Generate Key" untuk mula.</div>`;
         return;
     }
     el.innerHTML = Object.entries(keysData).map(([code, data]) => {
@@ -840,7 +882,12 @@ async function submitAddKey() {
         expire = d.toISOString().split('T')[0];
     }
     const keyCode = generateKeyCode(role);
-    keysData[keyCode] = { username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire, created: new Date().toISOString().split('T')[0] };
+    keysData[keyCode] = { 
+        username: role === 'TRIAL' ? '' : username, 
+        role, 
+        expire: role === 'LIFETIME' ? '-' : expire, 
+        created: new Date().toISOString().split('T')[0] 
+    };
     await saveKeysToGist();
     addActivity('Key Generated', `${keyCode} (${role})`);
     renderAll();
@@ -899,15 +946,15 @@ function confirmDelete(type, id) {
 }
 
 // ============================================================
-// SETTINGS
+// SETTINGS & UTILITIES
 // ============================================================
 function saveGistSettings() {
     const gistId = document.getElementById('settingGistId').value.trim();
     const token = document.getElementById('settingGithubToken').value.trim();
     if (gistId) localStorage.setItem('starsix_gist_id', gistId);
     if (token) localStorage.setItem('starsix_github_token', token);
-    toast('Settings saved! Restart sync.', 'ok');
-    location.reload();
+    toast('Settings saved! Page will reload.', 'info');
+    setTimeout(() => location.reload(), 1000);
 }
 
 function exportData() {
@@ -942,10 +989,10 @@ function importData(input) {
 }
 
 async function refreshAll() {
-    toast('Refresh...', 'info');
+    toast('Refreshing...', 'info');
     await loadKeysFromGist();
     loadActivityFromLocal();
-    toast('Data dikemaskini!', 'ok');
+    toast('Data updated!', 'ok');
 }
 
 // ============================================================
@@ -968,7 +1015,7 @@ function showView(name) {
 }
 
 // ============================================================
-// INIT - NO DEMO DATA, DIRECT GIST CONNECTION
+// INITIALIZATION - NO DEMO DATA
 // ============================================================
 initLineChart();
 loadKeysFromGist();
@@ -977,8 +1024,8 @@ showView('dashboard');
 setInterval(() => { loadKeysFromGist(); }, 30000);
 
 // Set Gist settings fields with current values
-document.getElementById('settingGistId').value = GIST_ID;
-document.getElementById('settingGithubToken').value = GITHUB_TOKEN;
+document.getElementById('settingGistId').value = CONFIG.GIST_ID;
+document.getElementById('settingGithubToken').value = CONFIG.GITHUB_TOKEN;
 </script>
 </body>
 </html>
