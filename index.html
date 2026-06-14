@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --bg: #050508;
@@ -22,7 +23,7 @@
             --text: #e4e4f0;
             --muted: #52526b;
         }
-        * { margin:0; padding:0; box-sizing:border-box; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             background: var(--bg);
@@ -30,15 +31,6 @@
             color: var(--text);
             min-height: 100vh;
             padding-bottom: 80px;
-        }
-
-        body::before {
-            content: '';
-            position: fixed;
-            inset: 0;
-            background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(139,92,246,0.015) 2px, rgba(139,92,246,0.015) 4px);
-            pointer-events: none;
-            z-index: 0;
         }
 
         .header {
@@ -118,6 +110,10 @@
             position: relative;
             overflow: hidden;
         }
+        .stat-card.purple::after { background: var(--purple); }
+        .stat-card.green::after { background: var(--green); }
+        .stat-card.blue::after { background: var(--blue); }
+        .stat-card.amber::after { background: var(--amber); }
         .stat-card::after {
             content: '';
             position: absolute;
@@ -126,10 +122,6 @@
             border-radius: 50%;
             opacity: 0.06;
         }
-        .stat-card.purple::after { background: var(--purple); }
-        .stat-card.green::after { background: var(--green); }
-        .stat-card.blue::after { background: var(--blue); }
-        .stat-card.amber::after { background: var(--amber); }
 
         .badge {
             display: inline-flex;
@@ -159,6 +151,7 @@
             letter-spacing: 0.05em;
             cursor: pointer;
             transition: all 0.2s;
+            padding: 8px 14px;
         }
         .btn-primary:active { transform: scale(0.97); }
 
@@ -170,6 +163,7 @@
             font-family: 'Space Mono', monospace;
             font-size: 11px;
             cursor: pointer;
+            padding: 6px 12px;
         }
         .btn-danger {
             background: rgba(239,68,68,0.1);
@@ -179,6 +173,7 @@
             font-family: 'Space Mono', monospace;
             font-size: 11px;
             cursor: pointer;
+            padding: 6px 12px;
         }
         .btn-success {
             background: rgba(16,185,129,0.1);
@@ -188,6 +183,7 @@
             font-family: 'Space Mono', monospace;
             font-size: 11px;
             cursor: pointer;
+            padding: 6px 12px;
         }
 
         .inp {
@@ -274,7 +270,6 @@
             border-radius: 12px;
             padding: 12px;
             margin-bottom: 8px;
-            position: relative;
         }
 
         .dot-live {
@@ -303,11 +298,23 @@
 
         .script-url {
             background: rgba(0,0,0,0.3);
-            padding: 6px 10px;
+            padding: 8px 10px;
             border-radius: 8px;
             font-size: 10px;
             font-family: 'Space Mono', monospace;
             word-break: break-all;
+        }
+
+        .code-preview {
+            background: #0a0a0f;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
         }
     </style>
 </head>
@@ -405,7 +412,7 @@
                 <div style="font-size:16px;font-weight:700;">Manage Keys</div>
                 <div class="mono" style="font-size:10px;color:var(--muted);" id="keysCount">— keys</div>
             </div>
-            <button onclick="openAddKeyModal()" class="btn-primary" style="padding:8px 14px;">
+            <button onclick="openAddKeyModal()" class="btn-primary">
                 <i class="fas fa-plus"></i> Generate Key
             </button>
         </div>
@@ -418,7 +425,7 @@
                 <div style="font-size:16px;font-weight:700;">Script Manager</div>
                 <div class="mono" style="font-size:10px;color:var(--muted);" id="scriptsCount">— scripts</div>
             </div>
-            <button onclick="openAddScriptModal()" class="btn-primary" style="padding:8px 14px;">
+            <button onclick="openAddScriptModal()" class="btn-primary">
                 <i class="fas fa-plus"></i> Tambah Script
             </button>
         </div>
@@ -429,16 +436,16 @@
         <div style="font-size:16px;font-weight:700;margin-bottom:14px;">Tetapan</div>
         
         <div class="card p-4" style="margin-bottom:12px;">
-            <div class="section-label" style="margin-bottom:12px;">// GITHUB GIST CONFIG</div>
+            <div class="section-label" style="margin-bottom:12px;">// SUPABASE CONFIG</div>
             <div style="margin-bottom:10px;">
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GIST ID</label>
-                <input type="text" id="settingGistId" class="inp" placeholder="e42299173afabebb5b84d90aee00769bdb83fccf">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">SUPABASE URL</label>
+                <input type="text" id="settingSupabaseUrl" class="inp" placeholder="https://xxxxx.supabase.co">
             </div>
             <div style="margin-bottom:10px;">
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
-                <input type="password" id="settingGithubToken" class="inp" placeholder="github_pat_xxx">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">SUPABASE ANON KEY</label>
+                <input type="password" id="settingSupabaseKey" class="inp" placeholder="eyJhbGciOiJIUzI1NiIs...">
             </div>
-            <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Sync</button>
+            <button onclick="saveSupabaseSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Connect</button>
         </div>
 
         <div class="card p-4">
@@ -477,7 +484,7 @@
         <div style="display:flex;flex-direction:column;gap:10px;">
             <div>
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">JENIS KEY</label>
-                <select id="addKeyRole" class="inp" onchange="toggleKeyFields()">
+                <select id="addKeyRole" class="inp">
                     <option value="TRIAL">Trial</option>
                     <option value="VIP">VIP</option>
                     <option value="LIFETIME">Lifetime</option>
@@ -499,35 +506,6 @@
     </div>
 </div>
 
-<div id="modalEditKey" class="modal-bg hidden">
-    <div class="modal-box">
-        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">EDIT KEY</div>
-        <input type="hidden" id="editKeyCode">
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            <div>
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">JENIS KEY</label>
-                <select id="editKeyRole" class="inp" onchange="toggleEditKeyFields()">
-                    <option value="TRIAL">Trial</option>
-                    <option value="VIP">VIP</option>
-                    <option value="LIFETIME">Lifetime</option>
-                </select>
-            </div>
-            <div id="editUsernameField">
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">USERNAME</label>
-                <input type="text" id="editKeyUsername" class="inp">
-            </div>
-            <div id="editExpireField">
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">TARIKH EXPIRED</label>
-                <input type="date" id="editKeyExpire" class="inp">
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button onclick="closeModal('modalEditKey')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
-                <button onclick="submitEditKey()" class="btn-primary" style="flex:1;padding:10px;">Kemaskini</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 <div id="modalAddScript" class="modal-bg hidden">
     <div class="modal-box">
         <div style="font-size:14px;font-weight:700;margin-bottom:14px;">+ TAMBAH SCRIPT</div>
@@ -538,11 +516,7 @@
             </div>
             <div>
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">SCRIPT CODE</label>
-                <textarea id="addScriptContent" class="inp" rows="6" placeholder="print('Hello World!')"></textarea>
-            </div>
-            <div>
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">ATAU UPLOAD FILE</label>
-                <input type="file" id="uploadScriptFile" accept=".lua,.txt" class="inp" onchange="uploadScriptFile(this)">
+                <textarea id="addScriptContent" class="inp" rows="6" placeholder='print("Hello World!")'></textarea>
             </div>
             <div style="display:flex;gap:8px;">
                 <button onclick="closeModal('modalAddScript')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
@@ -552,23 +526,12 @@
     </div>
 </div>
 
-<div id="modalEditScript" class="modal-bg hidden">
+<div id="modalViewScript" class="modal-bg hidden">
     <div class="modal-box">
-        <div style="font-size:14px;font-weight:700;margin-bottom:14px;">EDIT SCRIPT</div>
-        <input type="hidden" id="editScriptId">
-        <div style="display:flex;flex-direction:column;gap:10px;">
-            <div>
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">NAMA SCRIPT</label>
-                <input type="text" id="editScriptName" class="inp">
-            </div>
-            <div>
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">SCRIPT CODE</label>
-                <textarea id="editScriptContent" class="inp" rows="6"></textarea>
-            </div>
-            <div style="display:flex;gap:8px;">
-                <button onclick="closeModal('modalEditScript')" class="btn-ghost" style="flex:1;padding:10px;">Batal</button>
-                <button onclick="submitEditScript()" class="btn-primary" style="flex:1;padding:10px;">Kemaskini</button>
-            </div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:14px;" id="viewScriptTitle">VIEW SCRIPT</div>
+        <div class="code-preview" id="viewScriptContent"></div>
+        <div style="margin-top:16px;">
+            <button onclick="closeModal('modalViewScript')" class="btn-ghost" style="width:100%;padding:10px;">Tutup</button>
         </div>
     </div>
 </div>
@@ -589,14 +552,11 @@
 
 <script>
 // ============================================================
-// STAR SIX COMMUNITY DASHBOARD
-// Keys → GitHub Gist
-// Scripts → LocalStorage + Export/Import
+// STARSIX DASHBOARD - SUPABASE DATABASE VERSION
 // ============================================================
 
-let GIST_ID = localStorage.getItem('starsix_gist_id') || '';
-let GITHUB_TOKEN = localStorage.getItem('starsix_github_token') || '';
-let keysData = {};
+let supabaseClient = null;
+let keysData = [];
 let scriptsData = [];
 let activityData = [];
 let lineChart;
@@ -636,122 +596,233 @@ function initLineChart() {
     });
 }
 
-function updateLineChart() {
-    if (!lineChart) return;
-    const monthlyData = [0, 0, 0, 0, 0, 0];
-    Object.values(keysData).forEach(key => {
-        if (key.created) {
-            const month = new Date(key.created).getMonth();
-            if (month >= 0 && month < 6) monthlyData[month]++;
+// ============================================================
+// SUPABASE CONNECTION
+// ============================================================
+function initSupabase() {
+    const url = localStorage.getItem('starsix_supabase_url');
+    const key = localStorage.getItem('starsix_supabase_key');
+    
+    if (url && key && url !== 'null' && key !== 'null') {
+        try {
+            supabaseClient = window.supabase.createClient(url, key);
+            loadAllData();
+            return true;
+        } catch(e) {
+            console.error('Supabase init error:', e);
+            return false;
         }
-    });
-    lineChart.data.datasets[0].data = monthlyData;
-    lineChart.update();
+    }
+    return false;
 }
 
-// ============================================================
-// GITHUB GIST FUNCTIONS (UNTUK KEYS SAHAJA)
-// ============================================================
-async function loadKeysFromGist() {
-    if (!GIST_ID || !GITHUB_TOKEN) {
-        const saved = localStorage.getItem('starsix_keys_data');
-        keysData = saved ? JSON.parse(saved) : {};
-        if (Object.keys(keysData).length === 0) {
-            const expireDate = new Date();
-            expireDate.setFullYear(expireDate.getFullYear() + 1);
-            keysData = {
-                "STARSIX-TRIAL-DEMO": { username: "", role: "TRIAL", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
-                "STARSIX-VIP-DEMO": { username: "DemoUser", role: "VIP", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
-                "STARSIX-LIFE-DEMO": { username: "Admin", role: "LIFETIME", expire: "-", created: new Date().toISOString().split('T')[0] }
-            };
-        }
-        renderAll();
+async function saveSupabaseSettings() {
+    const url = document.getElementById('settingSupabaseUrl').value.trim();
+    const key = document.getElementById('settingSupabaseKey').value.trim();
+    
+    if (!url || !key) {
+        toast('Masukkan URL dan Key Supabase!', 'err');
         return;
     }
     
-    try {
-        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-        });
-        if (res.ok) {
-            const gist = await res.json();
-            const content = gist.files['starsix_keys.json']?.content;
-            if (content) {
-                keysData = JSON.parse(content);
-                localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
-                renderAll();
-                return;
-            }
-        }
-    } catch(e) {}
+    localStorage.setItem('starsix_supabase_url', url);
+    localStorage.setItem('starsix_supabase_key', key);
     
-    const saved = localStorage.getItem('starsix_keys_data');
-    keysData = saved ? JSON.parse(saved) : {};
+    if (initSupabase()) {
+        toast('Connected ke Supabase!', 'ok');
+    } else {
+        toast('Gagal connect ke Supabase!', 'err');
+    }
+}
+
+// ============================================================
+// DATABASE OPERATIONS
+// ============================================================
+async function loadAllData() {
+    if (!supabaseClient) return;
+    
+    await Promise.all([
+        loadKeysFromDB(),
+        loadScriptsFromDB(),
+        loadActivityFromDB()
+    ]);
+    
     renderAll();
 }
 
-async function saveKeysToGist() {
-    localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
-    if (!GIST_ID || !GITHUB_TOKEN) return;
-    
+async function loadKeysFromDB() {
     try {
-        const getRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-        });
-        let currentFiles = {};
-        if (getRes.ok) {
-            const gist = await getRes.json();
-            currentFiles = gist.files || {};
-        }
-        currentFiles['starsix_keys.json'] = { content: JSON.stringify(keysData, null, 2) };
-        await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-            method: 'PATCH',
-            headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
-            body: JSON.stringify({ files: currentFiles })
-        });
-        toast('Keys synced ke Gist!', 'ok');
-    } catch(e) {}
-}
-
-// ============================================================
-// SCRIPTS FUNCTIONS (LOCAL STORAGE SAHAJA)
-// ============================================================
-function loadScriptsFromLocal() {
-    const saved = localStorage.getItem('starsix_scripts_data');
-    scriptsData = saved ? JSON.parse(saved) : [];
-    if (scriptsData.length === 0) {
-        scriptsData = [
-            { id: "demo123", name: "Example Script", content: 'print("Hello from StarSix Community!")', created: new Date().toISOString().split('T')[0] }
-        ];
+        const { data, error } = await supabaseClient
+            .from('keys')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        keysData = data || [];
+        localStorage.setItem('starsix_keys_cache', JSON.stringify(keysData));
+    } catch(e) {
+        console.error('Load keys error:', e);
+        const cached = localStorage.getItem('starsix_keys_cache');
+        keysData = cached ? JSON.parse(cached) : [];
     }
-    renderScripts();
 }
 
-function saveScriptsToLocal() {
-    localStorage.setItem('starsix_scripts_data', JSON.stringify(scriptsData));
-}
-
-// ============================================================
-// ACTIVITY FUNCTIONS
-// ============================================================
-function loadActivityFromLocal() {
-    const saved = localStorage.getItem('starsix_activity_data');
-    activityData = saved ? JSON.parse(saved) : [];
-    if (activityData.length === 0) {
-        activityData = [{ action: 'System Ready', details: 'StarSix Community Online', time: new Date().toISOString() }];
+async function loadScriptsFromDB() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('scripts')
+            .select('*')
+            .order('created_at', { ascending: false });
+        
+        if (error) throw error;
+        scriptsData = data || [];
+        localStorage.setItem('starsix_scripts_cache', JSON.stringify(scriptsData));
+    } catch(e) {
+        console.error('Load scripts error:', e);
+        const cached = localStorage.getItem('starsix_scripts_cache');
+        scriptsData = cached ? JSON.parse(cached) : [];
     }
-    renderActivityLog();
 }
 
-function saveActivityToLocal() {
-    localStorage.setItem('starsix_activity_data', JSON.stringify(activityData));
+async function loadActivityFromDB() {
+    try {
+        const { data, error } = await supabaseClient
+            .from('activity_logs')
+            .select('*')
+            .order('created_at', { ascending: false })
+            .limit(50);
+        
+        if (error) throw error;
+        activityData = data || [];
+    } catch(e) {
+        console.error('Load activity error:', e);
+        activityData = [];
+    }
 }
 
-function addActivity(action, details) {
-    activityData.unshift({ action, details, time: new Date().toISOString() });
-    if (activityData.length > 50) activityData = activityData.slice(0, 50);
-    saveActivityToLocal();
-    renderActivityLog();
+async function addKeyToDB(keyData) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('keys')
+            .insert([keyData]);
+        
+        if (error) throw error;
+        await loadKeysFromDB();
+        await addActivityToDB('Key Generated', `${keyData.key_code} (${keyData.role})`);
+        return true;
+    } catch(e) {
+        console.error('Add key error:', e);
+        toast('Gagal simpan key!', 'err');
+        return false;
+    }
+}
+
+async function updateKeyInDB(keyCode, updates) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('keys')
+            .update(updates)
+            .eq('key_code', keyCode);
+        
+        if (error) throw error;
+        await loadKeysFromDB();
+        await addActivityToDB('Key Updated', keyCode);
+        return true;
+    } catch(e) {
+        console.error('Update key error:', e);
+        toast('Gagal update key!', 'err');
+        return false;
+    }
+}
+
+async function deleteKeyFromDB(keyCode) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('keys')
+            .delete()
+            .eq('key_code', keyCode);
+        
+        if (error) throw error;
+        await loadKeysFromDB();
+        await addActivityToDB('Key Deleted', keyCode);
+        return true;
+    } catch(e) {
+        console.error('Delete key error:', e);
+        toast('Gagal hapus key!', 'err');
+        return false;
+    }
+}
+
+async function addScriptToDB(scriptData) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('scripts')
+            .insert([scriptData]);
+        
+        if (error) throw error;
+        await loadScriptsFromDB();
+        await addActivityToDB('Script Created', scriptData.name);
+        return true;
+    } catch(e) {
+        console.error('Add script error:', e);
+        toast('Gagal simpan script!', 'err');
+        return false;
+    }
+}
+
+async function updateScriptInDB(scriptId, updates) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('scripts')
+            .update(updates)
+            .eq('id', scriptId);
+        
+        if (error) throw error;
+        await loadScriptsFromDB();
+        await addActivityToDB('Script Updated', updates.name);
+        return true;
+    } catch(e) {
+        console.error('Update script error:', e);
+        toast('Gagal update script!', 'err');
+        return false;
+    }
+}
+
+async function deleteScriptFromDB(scriptId) {
+    if (!supabaseClient) return false;
+    try {
+        const { error } = await supabaseClient
+            .from('scripts')
+            .delete()
+            .eq('id', scriptId);
+        
+        if (error) throw error;
+        await loadScriptsFromDB();
+        await addActivityToDB('Script Deleted', scriptId);
+        return true;
+    } catch(e) {
+        console.error('Delete script error:', e);
+        toast('Gagal hapus script!', 'err');
+        return false;
+    }
+}
+
+async function addActivityToDB(action, details) {
+    if (!supabaseClient) return;
+    try {
+        await supabaseClient
+            .from('activity_logs')
+            .insert([{ action, details }]);
+        await loadActivityFromDB();
+        renderActivityLog();
+    } catch(e) {
+        console.error('Add activity error:', e);
+    }
 }
 
 // ============================================================
@@ -760,7 +831,8 @@ function addActivity(action, details) {
 function generateKeyCode(role) {
     const prefix = role === 'TRIAL' ? 'TRL' : (role === 'VIP' ? 'VIP' : 'LIFE');
     const random = Math.random().toString(36).substring(2, 10).toUpperCase();
-    return `STARSIX-${prefix}-${random}`;
+    const timestamp = Date.now().toString(36).toUpperCase();
+    return `STARSIX-${prefix}-${random}-${timestamp.slice(-4)}`;
 }
 
 function generateScriptId() {
@@ -768,12 +840,8 @@ function generateScriptId() {
 }
 
 function isExpired(expire) {
-    if (!expire || expire === '-') return false;
+    if (!expire || expire === '-' || expire === 'Lifetime') return false;
     return new Date(expire) < new Date();
-}
-
-function getScriptRawUrl(id) {
-    return `${window.location.origin}/raw/${id}`;
 }
 
 function escapeHtml(str) {
@@ -802,14 +870,29 @@ function toast(msg, type = 'ok') {
     setTimeout(() => el?.remove(), 2800);
 }
 
+// Get script URL (via Supabase Storage atau API)
+function getScriptUrl(scriptId) {
+    const supabaseUrl = localStorage.getItem('starsix_supabase_url');
+    if (supabaseUrl) {
+        return `${supabaseUrl}/rest/v1/rpc/get_script?id=${scriptId}`;
+    }
+    return `#`;
+}
+
+function getLoadString(scriptId) {
+    // Gunakan raw endpoint dari API Vercel nanti
+    return `loadstring(game:HttpGet("https://starsix-api.vercel.app/api/script/${scriptId}"))()`;
+}
+
 // ============================================================
 // RENDER FUNCTIONS
 // ============================================================
 function renderStats() {
-    const total = Object.keys(keysData).length;
-    const active = Object.entries(keysData).filter(([code, data]) => !isExpired(data.expire)).length;
-    const trial = Object.values(keysData).filter(d => d.role === 'TRIAL').length;
-    const vip = Object.values(keysData).filter(d => d.role === 'VIP' || d.role === 'LIFETIME').length;
+    const total = keysData.length;
+    const active = keysData.filter(k => !isExpired(k.expire_date)).length;
+    const trial = keysData.filter(k => k.role === 'TRIAL').length;
+    const vip = keysData.filter(k => k.role === 'VIP' || k.role === 'LIFETIME').length;
+    
     document.getElementById('statTotalKeys').textContent = total;
     document.getElementById('statActiveKeys').textContent = active;
     document.getElementById('statTrialKeys').textContent = trial;
@@ -819,51 +902,55 @@ function renderStats() {
 function renderActivityLog() {
     const el = document.getElementById('activityLog');
     document.getElementById('activityCount').textContent = activityData.length + ' entri';
+    
     if (!activityData.length) {
         el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:20px;">Tiada aktiviti</div>`;
         return;
     }
+    
     el.innerHTML = activityData.slice(0, 15).map(a => `
         <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
             <div style="width:5px;height:5px;background:var(--purple);border-radius:50%;"></div>
             <div style="flex:1;">
-                <span style="font-size:10px;font-weight:600;">${a.action}</span>
-                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${a.details || ''}</span>
+                <span style="font-size:10px;font-weight:600;">${escapeHtml(a.action)}</span>
+                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${escapeHtml(a.details || '')}</span>
             </div>
-            <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
+            <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.created_at).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
         </div>
     `).join('');
 }
 
 function renderKeys() {
     const el = document.getElementById('keysList');
-    document.getElementById('keysCount').textContent = Object.keys(keysData).length + ' keys';
-    if (Object.keys(keysData).length === 0) {
+    document.getElementById('keysCount').textContent = keysData.length + ' keys';
+    
+    if (!keysData.length) {
         el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada keys</div>`;
         return;
     }
-    el.innerHTML = Object.entries(keysData).map(([code, data]) => {
-        const status = !isExpired(data.expire) ? 'active' : 'expired';
-        let badgeClass = data.role === 'TRIAL' ? 'badge-trial' : (data.role === 'VIP' ? 'badge-vip' : 'badge-lifetime');
+    
+    el.innerHTML = keysData.map(k => {
+        const status = !isExpired(k.expire_date) ? 'active' : 'expired';
+        let badgeClass = k.role === 'TRIAL' ? 'badge-trial' : (k.role === 'VIP' ? 'badge-vip' : 'badge-lifetime');
         return `
         <div class="key-item">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                 <div>
-                    <div class="mono" style="font-size:11px;font-weight:700;">${code}</div>
+                    <div class="mono" style="font-size:11px;font-weight:700;">${escapeHtml(k.key_code)}</div>
                     <div style="margin-top:4px;display:flex;gap:5px;">
-                        <span class="badge ${badgeClass}">${data.role}</span>
+                        <span class="badge ${badgeClass}">${k.role}</span>
                         <span class="badge ${status === 'active' ? 'badge-active' : 'badge-expired'}">${status === 'active' ? 'Aktif' : 'Expired'}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;">
-                    <button onclick="openEditKeyModal('${code}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button>
-                    <button onclick="confirmDelete('key', '${code}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
+                    <button onclick="openEditKeyModal('${k.key_code}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button>
+                    <button onclick="confirmDelete('key', '${k.key_code}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
             <div style="display:flex;gap:12px;">
-                <div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div><div class="mono" style="font-size:9px;">${data.expire === '-' ? 'Lifetime' : data.expire}</div></div>
-                <div><div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div><div class="mono" style="font-size:9px;color:var(--purple);">${data.username || 'Sesiapa'}</div></div>
-                <div><div class="mono" style="font-size:8px;color:var(--muted);">DIBUAT</div><div class="mono" style="font-size:9px;">${data.created || '-'}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div><div class="mono" style="font-size:9px;">${k.expire_date === '-' || k.expire_date === 'Lifetime' ? 'Lifetime' : k.expire_date}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div><div class="mono" style="font-size:9px;color:var(--purple);">${escapeHtml(k.username) || 'Sesiapa'}</div></div>
+                <div><div class="mono" style="font-size:8px;color:var(--muted);">DIBUAT</div><div class="mono" style="font-size:9px;">${new Date(k.created_at).toLocaleDateString()}</div></div>
             </div>
         </div>`;
     }).join('');
@@ -872,13 +959,14 @@ function renderKeys() {
 function renderScripts() {
     const el = document.getElementById('scriptsList');
     document.getElementById('scriptsCount').textContent = scriptsData.length + ' scripts';
+    
     if (!scriptsData.length) {
         el.innerHTML = `<div style="text-align:center;color:var(--muted);padding:40px;">Tiada script</div>`;
         return;
     }
+    
     el.innerHTML = scriptsData.map(s => {
-        const scriptUrl = getScriptRawUrl(s.id);
-        const loadstringCmd = `loadstring(game:HttpGet('${scriptUrl}'))()`;
+        const loadstringCmd = getLoadString(s.id);
         return `
         <div class="script-item">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
@@ -887,15 +975,38 @@ function renderScripts() {
                     <div class="mono" style="font-size:8px;color:var(--muted);">ID: ${s.id}</div>
                 </div>
                 <div style="display:flex;gap:6px;">
-                    <button onclick="copyToClipboard('${loadstringCmd.replace(/'/g, "\\'")}')" class="btn-success" style="padding:5px 8px;"><i class="fas fa-copy"></i></button>
+                    <button onclick="copyToClipboard('${loadstringCmd.replace(/'/g, "\\'")}')" class="btn-success" style="padding:5px 8px;"><i class="fas fa-copy"></i> Loadstring</button>
+                    <button onclick="viewScript('${s.id}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-eye"></i> View</button>
                     <button onclick="openEditScriptModal('${s.id}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button>
                     <button onclick="confirmDelete('script', '${s.id}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            <pre style="max-height:80px;overflow:auto;font-size:9px;">${escapeHtml(s.content.substring(0, 150))}${s.content.length > 150 ? '...' : ''}</pre>
-            <div class="script-url mono" style="font-size:9px;margin-top:8px;">${scriptUrl}</div>
+            <div class="script-url mono" style="font-size:9px;margin-top:8px;background:rgba(139,92,246,0.1);">
+                <span>Loadstring: ${escapeHtml(loadstringCmd)}</span>
+            </div>
         </div>`;
     }).join('');
+}
+
+function viewScript(scriptId) {
+    const script = scriptsData.find(s => s.id === scriptId);
+    if (!script) return;
+    document.getElementById('viewScriptTitle').innerHTML = `<i class="fas fa-code"></i> ${escapeHtml(script.name)}`;
+    document.getElementById('viewScriptContent').innerHTML = escapeHtml(script.content);
+    openModal('modalViewScript');
+}
+
+function updateLineChart() {
+    if (!lineChart) return;
+    const monthlyData = [0, 0, 0, 0, 0, 0];
+    keysData.forEach(key => {
+        if (key.created_at) {
+            const month = new Date(key.created_at).getMonth();
+            if (month >= 0 && month < 6) monthlyData[month]++;
+        }
+    });
+    lineChart.data.datasets[0].data = monthlyData;
+    lineChart.update();
 }
 
 function renderAll() {
@@ -909,23 +1020,10 @@ function renderAll() {
 // ============================================================
 // KEY CRUD
 // ============================================================
-function toggleKeyFields() {
-    const role = document.getElementById('addKeyRole').value;
-    document.getElementById('usernameField').style.display = role === 'TRIAL' ? 'none' : '';
-    document.getElementById('expireField').style.display = role === 'LIFETIME' ? 'none' : '';
-}
-
-function toggleEditKeyFields() {
-    const role = document.getElementById('editKeyRole').value;
-    document.getElementById('editUsernameField').style.display = role === 'TRIAL' ? 'none' : '';
-    document.getElementById('editExpireField').style.display = role === 'LIFETIME' ? 'none' : '';
-}
-
 function openAddKeyModal() {
     document.getElementById('addKeyRole').value = 'TRIAL';
     document.getElementById('addKeyUsername').value = '';
     document.getElementById('addKeyExpire').value = '';
-    toggleKeyFields();
     openModal('modalAddKey');
 }
 
@@ -933,118 +1031,43 @@ async function submitAddKey() {
     const role = document.getElementById('addKeyRole').value;
     const username = document.getElementById('addKeyUsername').value.trim();
     let expire = document.getElementById('addKeyExpire').value;
+    
     if (role !== 'TRIAL' && !username) { toast('Masukkan username!', 'err'); return; }
     if (role !== 'LIFETIME' && !expire) {
         const d = new Date(); d.setDate(d.getDate() + 30);
         expire = d.toISOString().split('T')[0];
     }
+    
     const keyCode = generateKeyCode(role);
-    keysData[keyCode] = { username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire, created: new Date().toISOString().split('T')[0] };
-    await saveKeysToGist();
-    addActivity('Key Generated', `${keyCode} (${role})`);
+    const newKey = {
+        key_code: keyCode,
+        username: role === 'TRIAL' ? '' : username,
+        role: role,
+        expire_date: role === 'LIFETIME' ? 'Lifetime' : expire,
+        created_at: new Date().toISOString()
+    };
+    
+    await addKeyToDB(newKey);
     renderAll();
     closeModal('modalAddKey');
     toast(`Key: ${keyCode}`, 'ok');
 }
 
-function openEditKeyModal(code) {
-    const data = keysData[code];
-    if (!data) return;
-    document.getElementById('editKeyCode').value = code;
-    document.getElementById('editKeyRole').value = data.role;
-    document.getElementById('editKeyUsername').value = data.username || '';
-    document.getElementById('editKeyExpire').value = data.expire !== '-' ? data.expire : '';
-    toggleEditKeyFields();
-    openModal('modalEditKey');
+function openEditKeyModal(keyCode) {
+    const key = keysData.find(k => k.key_code === keyCode);
+    if (!key) return;
+    
+    // Bisa implement edit modal
+    toast('Edit feature coming soon', 'info');
 }
 
-async function submitEditKey() {
-    const code = document.getElementById('editKeyCode').value;
-    const role = document.getElementById('editKeyRole').value;
-    const username = document.getElementById('editKeyUsername').value.trim();
-    let expire = document.getElementById('editKeyExpire').value;
-    if (role !== 'TRIAL' && !username && keysData[code]?.username !== '') { toast('Masukkan username!', 'err'); return; }
-    if (role !== 'LIFETIME' && !expire && keysData[code]?.expire !== '-') {
-        const d = new Date(); d.setDate(d.getDate() + 30);
-        expire = d.toISOString().split('T')[0];
-    }
-    keysData[code] = { ...keysData[code], username: role === 'TRIAL' ? '' : username, role, expire: role === 'LIFETIME' ? '-' : expire };
-    await saveKeysToGist();
-    addActivity('Key Updated', `${code} → ${role}`);
-    renderAll();
-    closeModal('modalEditKey');
-    toast('Key dikemaskini!', 'ok');
-}
-
-// ============================================================
-// SCRIPT CRUD
-// ============================================================
-function uploadScriptFile(input) {
-    const file = input.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        document.getElementById('addScriptContent').value = e.target.result;
-        toast('File berhasil dimuat!', 'ok');
-    };
-    reader.readAsText(file);
-}
-
-function openAddScriptModal() {
-    document.getElementById('addScriptName').value = '';
-    document.getElementById('addScriptContent').value = '';
-    document.getElementById('uploadScriptFile').value = '';
-    openModal('modalAddScript');
-}
-
-async function submitAddScript() {
-    const name = document.getElementById('addScriptName').value.trim();
-    const content = document.getElementById('addScriptContent').value.trim();
-    if (!name) { toast('Nama script wajib!', 'err'); return; }
-    if (!content) { toast('Script code wajib!', 'err'); return; }
-    const newScript = { id: generateScriptId(), name, content, created: new Date().toISOString().split('T')[0] };
-    scriptsData.push(newScript);
-    saveScriptsToLocal();
-    addActivity('Script Created', name);
-    renderScripts();
-    closeModal('modalAddScript');
-    toast('Script berhasil ditambah!', 'ok');
-}
-
-function openEditScriptModal(id) {
-    const script = scriptsData.find(s => s.id === id);
-    if (!script) return;
-    document.getElementById('editScriptId').value = id;
-    document.getElementById('editScriptName').value = script.name;
-    document.getElementById('editScriptContent').value = script.content;
-    openModal('modalEditScript');
-}
-
-async function submitEditScript() {
-    const id = document.getElementById('editScriptId').value;
-    const name = document.getElementById('editScriptName').value.trim();
-    const content = document.getElementById('editScriptContent').value.trim();
-    const index = scriptsData.findIndex(s => s.id === id);
-    if (index === -1) return;
-    scriptsData[index] = { ...scriptsData[index], name, content };
-    saveScriptsToLocal();
-    addActivity('Script Updated', name);
-    renderScripts();
-    closeModal('modalEditScript');
-    toast('Script dikemaskini!', 'ok');
-}
-
-// ============================================================
-// DELETE CONFIRMATION
-// ============================================================
-function confirmDelete(type, id) {
+async function confirmDelete(type, id) {
     const msg = document.getElementById('deleteMessage');
+    
     if (type === 'key') {
         msg.innerHTML = `Hapus key: <strong>${id}</strong>?`;
         pendingDeleteCallback = async () => {
-            delete keysData[id];
-            await saveKeysToGist();
-            addActivity('Key Deleted', id);
+            await deleteKeyFromDB(id);
             renderAll();
             closeModal('modalDeleteConfirm');
             toast('Key dipadam!', 'ok');
@@ -1052,15 +1075,14 @@ function confirmDelete(type, id) {
     } else if (type === 'script') {
         const script = scriptsData.find(s => s.id === id);
         msg.innerHTML = `Hapus script: <strong>${script?.name || id}</strong>?`;
-        pendingDeleteCallback = () => {
-            scriptsData = scriptsData.filter(s => s.id !== id);
-            saveScriptsToLocal();
-            addActivity('Script Deleted', script?.name || id);
-            renderScripts();
+        pendingDeleteCallback = async () => {
+            await deleteScriptFromDB(id);
+            renderAll();
             closeModal('modalDeleteConfirm');
             toast('Script dipadam!', 'ok');
         };
     }
+    
     const confirmBtn = document.getElementById('deleteConfirmBtn');
     const newBtn = confirmBtn.cloneNode(true);
     confirmBtn.parentNode.replaceChild(newBtn, confirmBtn);
@@ -1070,21 +1092,45 @@ function confirmDelete(type, id) {
 }
 
 // ============================================================
-// SETTINGS
+// SCRIPT CRUD
 // ============================================================
-function saveGistSettings() {
-    const gistId = document.getElementById('settingGistId').value.trim();
-    const token = document.getElementById('settingGithubToken').value.trim();
-    if (gistId) localStorage.setItem('starsix_gist_id', gistId);
-    if (token) localStorage.setItem('starsix_github_token', token);
-    GIST_ID = gistId;
-    GITHUB_TOKEN = token;
-    toast('Gist settings disimpan!', 'ok');
-    loadKeysFromGist();
+function openAddScriptModal() {
+    document.getElementById('addScriptName').value = '';
+    document.getElementById('addScriptContent').value = '';
+    openModal('modalAddScript');
 }
 
+async function submitAddScript() {
+    const name = document.getElementById('addScriptName').value.trim();
+    const content = document.getElementById('addScriptContent').value.trim();
+    
+    if (!name) { toast('Nama script wajib!', 'err'); return; }
+    if (!content) { toast('Script code wajib!', 'err'); return; }
+    
+    const newScript = {
+        id: generateScriptId(),
+        name: name,
+        content: content,
+        created_at: new Date().toISOString()
+    };
+    
+    await addScriptToDB(newScript);
+    renderAll();
+    closeModal('modalAddScript');
+    toast('Script berhasil ditambah!', 'ok');
+}
+
+function openEditScriptModal(id) {
+    const script = scriptsData.find(s => s.id === id);
+    if (!script) return;
+    toast('Edit feature coming soon', 'info');
+}
+
+// ============================================================
+// SETTINGS
+// ============================================================
 function exportData() {
-    const data = { keys: keysData, scripts: scriptsData, activityLog: activityData };
+    const data = { keys: keysData, scripts: scriptsData, activity: activityData };
     const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -1099,16 +1145,20 @@ function importData(input) {
     const file = input.files[0];
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = async function(e) {
         try {
             const data = JSON.parse(e.target.result);
-            if (data.keys) keysData = data.keys;
-            if (data.scripts) scriptsData = data.scripts;
-            if (data.activityLog) activityData = data.activityLog;
-            saveKeysToGist();
-            saveScriptsToLocal();
-            saveActivityToLocal();
-            renderAll();
+            if (data.keys && supabaseClient) {
+                for (const key of data.keys) {
+                    await supabaseClient.from('keys').upsert([key]);
+                }
+            }
+            if (data.scripts && supabaseClient) {
+                for (const script of data.scripts) {
+                    await supabaseClient.from('scripts').upsert([script]);
+                }
+            }
+            await loadAllData();
             toast('Data diimport!', 'ok');
         } catch(err) { toast('File tidak valid!', 'err'); }
     };
@@ -1118,9 +1168,7 @@ function importData(input) {
 
 async function refreshAll() {
     toast('Refresh...', 'info');
-    await loadKeysFromGist();
-    loadScriptsFromLocal();
-    loadActivityFromLocal();
+    await loadAllData();
     toast('Data dikemaskini!', 'ok');
 }
 
@@ -1143,15 +1191,20 @@ function showView(name) {
     document.getElementById('nav-' + name)?.classList.add('active');
 }
 
+function loadSettings() {
+    const url = localStorage.getItem('starsix_supabase_url');
+    const key = localStorage.getItem('starsix_supabase_key');
+    if (url) document.getElementById('settingSupabaseUrl').value = url;
+    if (key) document.getElementById('settingSupabaseKey').value = key;
+}
+
 // ============================================================
 // INIT
 // ============================================================
 initLineChart();
-loadKeysFromGist();
-loadScriptsFromLocal();
-loadActivityFromLocal();
+loadSettings();
+initSupabase();
 showView('dashboard');
-setInterval(() => { loadKeysFromGist(); }, 30000);
 </script>
 </body>
 </html>
