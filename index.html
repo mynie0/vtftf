@@ -429,11 +429,11 @@
             <div class="section-label" style="margin-bottom:12px;">// GITHUB GIST CONFIG</div>
             <div style="margin-bottom:10px;">
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GIST ID</label>
-                <input type="text" id="settingGistId" class="inp">
+                <input type="text" id="settingGistId" class="inp" placeholder="436734a001bef407c514615ebff6ede3">
             </div>
             <div style="margin-bottom:10px;">
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
-                <input type="password" id="settingGithubToken" class="inp">
+                <input type="password" id="settingGithubToken" class="inp" placeholder="ghp_xxx">
             </div>
             <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Sync</button>
         </div>
@@ -540,12 +540,13 @@
 // ============================================================
 // STAR SIX COMMUNITY DASHBOARD
 // GIST ID: 436734a001bef407c514615ebff6ede3
+// TOKEN: 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
 // ============================================================
 
 const CONFIG = {
     GIST_ID: '436734a001bef407c514615ebff6ede3',
-    GITHUB_TOKEN: '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',
-    FILE_NAME: 'keys.json'  // nama file dalam gist anda
+    GITHUB_TOKEN: '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',
+    FILE_NAME: 'keys.json'
 };
 
 let keysData = {};
@@ -553,7 +554,7 @@ let activityData = [];
 let lineChart;
 let pendingDeleteCallback = null;
 
-// Save config to localStorage
+// Simpan ke localStorage untuk backup
 localStorage.setItem('starsix_gist_id', CONFIG.GIST_ID);
 localStorage.setItem('starsix_github_token', CONFIG.GITHUB_TOKEN);
 
@@ -602,115 +603,108 @@ function updateLineChart() {
 }
 
 // ============================================================
-// GITHUB GIST - READ & WRITE
+// GITHUB GIST FUNCTIONS
 // ============================================================
 async function loadKeysFromGist() {
     try {
-        console.log('Loading from Gist...');
-        const res = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
-            headers: { 
-                'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+        console.log('Loading keys from Gist...');
+        const response = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${CONFIG.GITHUB_TOKEN}`,
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
         
-        if (res.ok) {
-            const gist = await res.json();
-            console.log('Gist loaded:', gist.id);
-            
-            // Check for keys.json file
-            let content = null;
-            if (gist.files && gist.files[CONFIG.FILE_NAME]) {
-                content = gist.files[CONFIG.FILE_NAME].content;
-                console.log('Found keys.json, content length:', content?.length);
-            } else if (gist.files && gist.files['starsix_keys.json']) {
-                content = gist.files['starsix_keys.json'].content;
-                console.log('Found starsix_keys.json');
-            }
-            
-            if (content) {
-                keysData = JSON.parse(content);
-                // Ensure it's an object
-                if (typeof keysData !== 'object' || Array.isArray(keysData)) {
-                    keysData = {};
-                }
-                console.log('Keys loaded:', Object.keys(keysData).length, 'keys');
-                localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
-                addActivity('Sync Success', `Loaded ${Object.keys(keysData).length} keys from Gist`);
-                renderAll();
-                return;
-            } else {
-                console.log('No keys.json file found in gist, creating empty data');
-                keysData = {};
-                await saveKeysToGist();
-            }
-        } else {
-            const errorText = await res.text();
-            console.error('Gist fetch failed:', res.status, errorText);
-            // Use local backup
-            const saved = localStorage.getItem('starsix_keys_data');
-            keysData = saved ? JSON.parse(saved) : {};
-            addActivity('Sync Warning', 'Using local backup (Gist unreachable)');
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
-    } catch(e) {
-        console.error('Gist load error:', e);
+        
+        const gist = await response.json();
+        console.log('Gist loaded:', gist.id);
+        
+        // Cari file keys.json
+        let keysContent = null;
+        if (gist.files && gist.files[CONFIG.FILE_NAME]) {
+            keysContent = gist.files[CONFIG.FILE_NAME].content;
+            console.log('Found keys.json, length:', keysContent.length);
+        } else if (gist.files && gist.files['starsix_keys.json']) {
+            keysContent = gist.files['starsix_keys.json'].content;
+            console.log('Found starsix_keys.json');
+        }
+        
+        if (keysContent) {
+            keysData = JSON.parse(keysContent);
+            if (typeof keysData !== 'object' || Array.isArray(keysData)) {
+                keysData = {};
+            }
+            console.log('Keys loaded:', Object.keys(keysData).length, 'keys');
+            localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
+            addActivity('Sync Success', `Loaded ${Object.keys(keysData).length} keys from Gist`);
+        } else {
+            console.log('No keys.json found, creating empty data');
+            keysData = {};
+            await saveKeysToGist();
+        }
+    } catch(error) {
+        console.error('Load error:', error);
+        addActivity('Sync Error', error.message);
+        // Fallback ke localStorage
         const saved = localStorage.getItem('starsix_keys_data');
         keysData = saved ? JSON.parse(saved) : {};
-        addActivity('Sync Error', e.message);
+        toast('Guna data tempatan (Gist tak boleh diakses)', 'err');
     }
     
-    if (!keysData || Object.keys(keysData).length === 0) {
-        keysData = {};
-    }
     renderAll();
 }
 
 async function saveKeysToGist() {
-    // Always save to localStorage first
+    // Backup ke localStorage dulu
     localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
     
     try {
         console.log('Saving to Gist...', Object.keys(keysData).length, 'keys');
         
-        // First get current gist to preserve other files
-        const getRes = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
-            headers: { 
-                'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
+        // Dapatkan gist semasa dulu
+        const getResponse = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+            method: 'GET',
+            headers: {
+                'Authorization': `Bearer ${CONFIG.GITHUB_TOKEN}`,
                 'Accept': 'application/vnd.github.v3+json'
             }
         });
         
         let currentFiles = {};
-        if (getRes.ok) {
-            const gist = await getRes.json();
+        if (getResponse.ok) {
+            const gist = await getResponse.json();
             currentFiles = gist.files || {};
         }
         
-        // Update or create keys.json
-        currentFiles[CONFIG.FILE_NAME] = { 
-            content: JSON.stringify(keysData, null, 2) 
+        // Update keys.json
+        currentFiles[CONFIG.FILE_NAME] = {
+            content: JSON.stringify(keysData, null, 2)
         };
         
-        const patchRes = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
+        // Patch gist
+        const patchResponse = await fetch(`https://api.github.com/gists/${CONFIG.GIST_ID}`, {
             method: 'PATCH',
-            headers: { 
-                'Authorization': `token ${CONFIG.GITHUB_TOKEN}`,
-                'Content-Type': 'application/json'
+            headers: {
+                'Authorization': `Bearer ${CONFIG.GITHUB_TOKEN}`,
+                'Content-Type': 'application/json',
+                'Accept': 'application/vnd.github.v3+json'
             },
             body: JSON.stringify({ files: currentFiles })
         });
         
-        if (patchRes.ok) {
-            console.log('Gist saved successfully');
-            toast('Keys synced to Gist!', 'ok');
-        } else {
-            const errText = await patchRes.text();
-            console.error('Gist save failed:', patchRes.status, errText);
-            toast('Failed to sync to Gist!', 'err');
+        if (!patchResponse.ok) {
+            throw new Error(`HTTP ${patchResponse.status}`);
         }
-    } catch(e) {
-        console.error('Gist save error:', e);
-        toast('Error syncing to Gist!', 'err');
+        
+        console.log('Saved to Gist successfully');
+        toast('Keys saved to Gist!', 'ok');
+    } catch(error) {
+        console.error('Save error:', error);
+        toast('Gagal simpan ke Gist! Data disimpan tempatan.', 'err');
     }
 }
 
@@ -767,14 +761,14 @@ function toast(msg, type = 'ok') {
     setTimeout(() => el?.remove(), 2800);
 }
 
-function escapeHtml(str) { 
-    if (!str) return ''; 
-    return str.replace(/[&<>]/g, function(m) { 
-        if (m === '&') return '&amp;'; 
-        if (m === '<') return '&lt;'; 
-        if (m === '>') return '&gt;'; 
-        return m; 
-    }); 
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
 }
 
 // ============================================================
@@ -953,7 +947,7 @@ function saveGistSettings() {
     const token = document.getElementById('settingGithubToken').value.trim();
     if (gistId) localStorage.setItem('starsix_gist_id', gistId);
     if (token) localStorage.setItem('starsix_github_token', token);
-    toast('Settings saved! Page will reload.', 'info');
+    toast('Settings saved! Reloading...', 'info');
     setTimeout(() => location.reload(), 1000);
 }
 
@@ -989,7 +983,7 @@ function importData(input) {
 }
 
 async function refreshAll() {
-    toast('Refreshing...', 'info');
+    toast('Refreshing from Gist...', 'info');
     await loadKeysFromGist();
     loadActivityFromLocal();
     toast('Data updated!', 'ok');
@@ -1015,15 +1009,15 @@ function showView(name) {
 }
 
 // ============================================================
-// INITIALIZATION - NO DEMO DATA
+// INITIALIZATION
 // ============================================================
 initLineChart();
 loadKeysFromGist();
 loadActivityFromLocal();
 showView('dashboard');
-setInterval(() => { loadKeysFromGist(); }, 30000);
+setInterval(() => { loadKeysFromGist(); }, 60000);
 
-// Set Gist settings fields with current values
+// Set Gist settings fields
 document.getElementById('settingGistId').value = CONFIG.GIST_ID;
 document.getElementById('settingGithubToken').value = CONFIG.GITHUB_TOKEN;
 </script>
