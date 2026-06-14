@@ -411,14 +411,13 @@
             <div class="section-label" style="margin-bottom:12px;">// GITHUB GIST CONFIG</div>
             <div style="margin-bottom:10px;">
                 <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GIST ID</label>
-                <input type="text" id="settingGistId" class="inp" placeholder="436734a001bef407c514615ebff6ede3" value="436734a001bef407c514615ebff6ede3">
+                <input type="text" id="settingGistId" class="inp" placeholder="e42299173afabebb5b84d90aee00769bdb83fccf">
             </div>
             <div style="margin-bottom:10px;">
-                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN (optional untuk baca public gist)</label>
-                <input type="password" id="settingGithubToken" class="inp" placeholder="(kosongkan jika gist public)">
+                <label class="mono" style="font-size:9px;color:var(--muted);display:block;margin-bottom:5px;">GITHUB TOKEN</label>
+                <input type="password" id="settingGithubToken" class="inp" placeholder="github_pat_xxx">
             </div>
             <button onclick="saveGistSettings()" class="btn-primary" style="width:100%;padding:10px;">Simpan & Sync</button>
-            <p class="mono" style="font-size:8px;color:var(--muted);margin-top:8px;">*Gist ID anda: <strong class="text-purple">436734a001bef407c514615ebff6ede3</strong> (sudah diisi)</p>
         </div>
 
         <div class="card p-4">
@@ -522,16 +521,10 @@
 <script>
 // ============================================================
 // STAR SIX COMMUNITY DASHBOARD
-// Menggunakan GIST ID yang sudah ada: 436734a001bef407c514615ebff6ede3
-// File: keys.json
-// TIDAK PERNAH MEMBUAT GIST BARU
+// Keys → GitHub Gist
 // ============================================================
 
-// GIST ID DEFAULT ANDA
-const DEFAULT_GIST_ID = "436734a001bef407c514615ebff6ede3";
-const GIST_FILENAME = "keys.json";
-
-let GIST_ID = localStorage.getItem('starsix_gist_id') || DEFAULT_GIST_ID;
+let GIST_ID = localStorage.getItem('starsix_gist_id') || '';
 let GITHUB_TOKEN = localStorage.getItem('starsix_github_token') || '';
 let keysData = {};
 let activityData = [];
@@ -586,108 +579,67 @@ function updateLineChart() {
 }
 
 // ============================================================
-// GITHUB GIST FUNCTIONS - HANYA BACA, TIDAK MEMBUAT BARU
+// GITHUB GIST FUNCTIONS (UNTUK KEYS SAHAJA)
 // ============================================================
 async function loadKeysFromGist() {
-    // Cuba baca dari Gist menggunakan raw URL (public) - lebih mudah
-    const rawUrl = `https://gist.githubusercontent.com/${GIST_ID.startsWith('gist') ? '' : ''}raw?gist=${GIST_ID}`;
-    // Cara betul: Gist raw URL pattern
-    const actualRawUrl = `https://gist.githubusercontent.com/mynie0/${GIST_ID}/raw/${GIST_FILENAME}`;
+    if (!GIST_ID || !GITHUB_TOKEN) {
+        const saved = localStorage.getItem('starsix_keys_data');
+        keysData = saved ? JSON.parse(saved) : {};
+        if (Object.keys(keysData).length === 0) {
+            const expireDate = new Date();
+            expireDate.setFullYear(expireDate.getFullYear() + 1);
+            keysData = {
+                "STARSIX-TRIAL-DEMO": { username: "", role: "TRIAL", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
+                "STARSIX-VIP-DEMO": { username: "DemoUser", role: "VIP", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
+                "STARSIX-LIFE-DEMO": { username: "Admin", role: "LIFETIME", expire: "-", created: new Date().toISOString().split('T')[0] }
+            };
+        }
+        renderAll();
+        return;
+    }
     
     try {
-        // Cuba fetch dari raw URL (public, no token needed)
-        const res = await fetch(actualRawUrl);
+        const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+            headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
+        });
         if (res.ok) {
-            const data = await res.json();
-            if (typeof data === 'object' && data !== null) {
-                keysData = data;
+            const gist = await res.json();
+            const content = gist.files['starsix_keys.json']?.content;
+            if (content) {
+                keysData = JSON.parse(content);
                 localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
                 renderAll();
-                toast('Data loaded from your Gist!', 'ok');
                 return;
             }
         }
-    } catch(e) {
-        console.log("Raw fetch failed, trying API...", e);
-    }
+    } catch(e) {}
     
-    // Jika raw gagal, cuba dengan API (perlu token untuk private gist)
-    if (GITHUB_TOKEN) {
-        try {
-            const res = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
-                headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
-            });
-            if (res.ok) {
-                const gist = await res.json();
-                const content = gist.files[GIST_FILENAME]?.content;
-                if (content) {
-                    keysData = JSON.parse(content);
-                    localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
-                    renderAll();
-                    toast('Data loaded from your Gist via API!', 'ok');
-                    return;
-                }
-            }
-        } catch(e) {}
-    }
-    
-    // Fallback ke local storage
     const saved = localStorage.getItem('starsix_keys_data');
-    if (saved) {
-        keysData = JSON.parse(saved);
-    } else {
-        // Demo data jika tiada
-        const expireDate = new Date();
-        expireDate.setFullYear(expireDate.getFullYear() + 1);
-        keysData = {
-            "STARSIX-TRIAL-DEMO": { username: "", role: "TRIAL", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] },
-            "STARSIX-VIP-DEMO": { username: "DemoUser", role: "VIP", expire: expireDate.toISOString().split('T')[0], created: new Date().toISOString().split('T')[0] }
-        };
-    }
+    keysData = saved ? JSON.parse(saved) : {};
     renderAll();
-    toast('Using local data (Gist not accessible)', 'info');
 }
 
 async function saveKeysToGist() {
     localStorage.setItem('starsix_keys_data', JSON.stringify(keysData));
-    
-    if (!GIST_ID) {
-        toast('Gist ID tidak diisi. Data hanya disimpan lokal.', 'info');
-        return;
-    }
-    
-    if (!GITHUB_TOKEN) {
-        toast('Github Token diperlukan untuk menulis ke Gist. Data hanya disimpan lokal.', 'info');
-        return;
-    }
+    if (!GIST_ID || !GITHUB_TOKEN) return;
     
     try {
-        // Dapatkan Gist semasa
         const getRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
             headers: { 'Authorization': `token ${GITHUB_TOKEN}` }
         });
-        if (!getRes.ok) throw new Error('Cannot access Gist');
-        
-        const gist = await getRes.json();
-        let currentFiles = gist.files || {};
-        
-        // Update keys.json
-        currentFiles[GIST_FILENAME] = { content: JSON.stringify(keysData, null, 2) };
-        
-        const patchRes = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+        let currentFiles = {};
+        if (getRes.ok) {
+            const gist = await getRes.json();
+            currentFiles = gist.files || {};
+        }
+        currentFiles['starsix_keys.json'] = { content: JSON.stringify(keysData, null, 2) };
+        await fetch(`https://api.github.com/gists/${GIST_ID}`, {
             method: 'PATCH',
             headers: { 'Authorization': `token ${GITHUB_TOKEN}`, 'Content-Type': 'application/json' },
             body: JSON.stringify({ files: currentFiles })
         });
-        
-        if (patchRes.ok) {
-            toast('Keys saved to your Gist!', 'ok');
-        } else {
-            throw new Error('Patch failed');
-        }
-    } catch(e) {
-        toast('Gagal save ke Gist: ' + e.message, 'err');
-    }
+        toast('Keys synced ke Gist!', 'ok');
+    } catch(e) {}
 }
 
 // ============================================================
@@ -727,9 +679,19 @@ function isExpired(expire) {
     return new Date(expire) < new Date();
 }
 
+function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
 function copyToClipboard(text) {
     navigator.clipboard.writeText(text);
-    toast('Key disalin ke clipboard!', 'ok');
+    toast('Disalin ke clipboard!', 'ok');
 }
 
 function toast(msg, type = 'ok') {
@@ -741,16 +703,6 @@ function toast(msg, type = 'ok') {
     el.innerHTML = `<i class="fas ${icons[type]}" style="color:${colors[type]};"></i><span>${msg}</span>`;
     document.body.appendChild(el);
     setTimeout(() => el?.remove(), 2800);
-}
-
-function escapeHtml(str) {
-    if (!str) return '';
-    return str.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
 }
 
 // ============================================================
@@ -778,8 +730,8 @@ function renderActivityLog() {
         <div style="display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid rgba(255,255,255,0.04);">
             <div style="width:5px;height:5px;background:var(--purple);border-radius:50%;"></div>
             <div style="flex:1;">
-                <span style="font-size:10px;font-weight:600;">${escapeHtml(a.action)}</span>
-                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${escapeHtml(a.details || '')}</span>
+                <span style="font-size:10px;font-weight:600;">${a.action}</span>
+                <span style="color:var(--muted);font-size:9px;font-family:'Space Mono',monospace;display:block;">${a.details || ''}</span>
             </div>
             <span class="mono" style="font-size:8px;color:var(--muted);">${new Date(a.time).toLocaleTimeString('ms-MY',{hour:'2-digit',minute:'2-digit'})}</span>
         </div>
@@ -800,21 +752,18 @@ function renderKeys() {
         <div class="key-item">
             <div style="display:flex;justify-content:space-between;margin-bottom:8px;">
                 <div>
-                    <div class="mono" style="font-size:11px;font-weight:700;">${escapeHtml(code)}</div>
+                    <div class="mono" style="font-size:11px;font-weight:700;">${code}</div>
                     <div style="margin-top:4px;display:flex;gap:5px;">
                         <span class="badge ${badgeClass}">${data.role}</span>
                         <span class="badge ${status === 'active' ? 'badge-active' : 'badge-expired'}">${status === 'active' ? 'Aktif' : 'Expired'}</span>
                     </div>
                 </div>
                 <div style="display:flex;gap:6px;">
-                    <button onclick="copyToClipboard('${code}')" class="btn-success" style="padding:5px 10px;" title="Salin Key">
-                        <i class="fas fa-copy"></i> Copy
-                    </button>
                     <button onclick="openEditKeyModal('${code}')" class="btn-ghost" style="padding:5px 8px;"><i class="fas fa-pen"></i></button>
                     <button onclick="confirmDelete('key', '${code}')" class="btn-danger" style="padding:5px 8px;"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
-            <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <div style="display:flex;gap:12px;">
                 <div><div class="mono" style="font-size:8px;color:var(--muted);">EXPIRED</div><div class="mono" style="font-size:9px;">${data.expire === '-' ? 'Lifetime' : data.expire}</div></div>
                 <div><div class="mono" style="font-size:8px;color:var(--muted);">PENGGUNA</div><div class="mono" style="font-size:9px;color:var(--purple);">${data.username || 'Sesiapa'}</div></div>
                 <div><div class="mono" style="font-size:8px;color:var(--muted);">DIBUAT</div><div class="mono" style="font-size:9px;">${data.created || '-'}</div></div>
@@ -900,10 +849,13 @@ async function submitEditKey() {
     toast('Key dikemaskini!', 'ok');
 }
 
+// ============================================================
+// DELETE CONFIRMATION
+// ============================================================
 function confirmDelete(type, id) {
     const msg = document.getElementById('deleteMessage');
     if (type === 'key') {
-        msg.innerHTML = `Hapus key: <strong>${escapeHtml(id)}</strong>?`;
+        msg.innerHTML = `Hapus key: <strong>${id}</strong>?`;
         pendingDeleteCallback = async () => {
             delete keysData[id];
             await saveKeysToGist();
@@ -927,14 +879,10 @@ function confirmDelete(type, id) {
 function saveGistSettings() {
     const gistId = document.getElementById('settingGistId').value.trim();
     const token = document.getElementById('settingGithubToken').value.trim();
-    if (gistId) {
-        localStorage.setItem('starsix_gist_id', gistId);
-        GIST_ID = gistId;
-    }
-    if (token) {
-        localStorage.setItem('starsix_github_token', token);
-        GITHUB_TOKEN = token;
-    }
+    if (gistId) localStorage.setItem('starsix_gist_id', gistId);
+    if (token) localStorage.setItem('starsix_github_token', token);
+    GIST_ID = gistId;
+    GITHUB_TOKEN = token;
     toast('Gist settings disimpan!', 'ok');
     loadKeysFromGist();
 }
@@ -1006,4 +954,4 @@ showView('dashboard');
 setInterval(() => { loadKeysFromGist(); }, 30000);
 </script>
 </body>
-</html>
+                        </html>
